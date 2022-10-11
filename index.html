@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/index.b2625c6b.css">
+    <script src="/index.850bd9e5.js" defer=""></script>
+    <title>JG Bug Tracker</title>
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <nav class="main-nav">
+          <div class="logo"></div>
+          <ul class="main-nav-list">
+            <li class="main-nav-item">
+              <a class="main-nav-link" href="#">Home</a>
+            </li>
+            <li class="main-nav-item">
+              <a class="main-nav-link" href="#">Projects</a>
+            </li>
+            <li class="main-nav-item">
+              <a class="main-nav-link" href="#">Members</a>
+            </li>
+          </ul>
+        </nav>
+
+        <div class="login-form-container">
+          <form class="form-login">
+            <label for="input-username" class="label-username">Username:
+            </label>
+            <input class="input-username" type="text">
+            <label for="input-password" class="label-username">Password:
+            </label>
+            <input class="input-password" type="text">
+          </form>
+          <button class="cta-signup cta-signin">Sign in</button>
+          <button class="cta-signup">Sign up?</button>
+        </div>
+      </header>
+
+      <div class="page-content-container">
+        <aside class="main-aside">
+          <div class="project-selection">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="project-icon">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776"></path>
+            </svg>
+            <div class="project-selection-text">
+              <h3 class="aside-project-title">Project Name</h3>
+              <p class="aside-project-type">Software Project</p>
+            </div>
+          </div>
+          <nav class="aside-nav">
+            <ul class="aside-nav-list">
+              <li class="aside-nav-item">
+                <a href="#" class="aside-nav-link">Active Tasks</a>
+              </li>
+              <li class="aside-nav-item">
+                <a href="#" class="aside-nav-link">Urgent Tasks</a>
+              </li>
+              <li class="aside-nav-item">
+                <a href="#" class="aside-nav-link">Solved Tasks</a>
+              </li>
+            </ul>
+          </nav>
+        </aside>
+
+        <section class="section-main">
+          <h4 class="text-path">Projects / Issues</h4>
+          <h2 class="content-heading">Issues</h2>
+
+          <div class="search-field"></div>
+          <button class="add-bug">Add New Bug</button>
+          <div class="bugs-list-header">
+            <ul class="bugs-header-sections bugs-list">
+              <li class="bugs-header-list-item">Status</li>
+              <li class="bugs-header-list-item">Bug Name</li>
+              <li class="bugs-header-list-item">Bug Finder</li>
+
+              <li class="bugs-header-list-item">Priority</li>
+            </ul>
+          </div>
+
+          <div class="bugs-user-container">
+            <ul class="bugs-list bugs-list--user">
+              <li>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="status-icon tint-green">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"></path>
+                </svg>
+              </li>
+              <li class="bug--user-item tint-blue">
+                The API call is rejecting
+              </li>
+              <li class="bug--user-item">Jordan Gidman</li>
+              <li class="bug--user-item tint-red">HIGH</li>
+            </ul>
+          </div>
+        </section>
+      </div>
+    </div>
+  </body>
+</html>
