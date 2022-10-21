@@ -33,7 +33,13 @@
         </nav>
 
         <div class="teamcode-form-container">
-          <form class="login-form"></form>
+          <form class="teamcode-form">
+            <label for="input-teamcode" class="teamcode-label">Team Code</label>
+            <input class="input-teamcode" type="text">
+            <button class="btn-teamcode teamcode-join">Join</button>
+            <button class="btn-teamcode teamcode-create">Create</button>
+            <button class="btn-teamcode-help">?</button>
+          </form>
         </div>
 
         <!-- <div class="login-form-container">
@@ -102,7 +108,13 @@
                 <a href="#" class="aside-nav-link">Solved Tasks</a>
               </li> -->
             </ul>
-            <button class="add-project-button">Add New Project</button>
+            <!-- <div class="add-project-container">
+              <label for="input-new-project-name" class="add-project-title"
+                >Project Name</label
+              >
+              <input class="input-new-project-name" type="text" />
+              <button class="add-project-button">Add New Project</button>
+            </div> -->
           </nav>
         </aside>
 
@@ -112,6 +124,7 @@
 
           <div class="search-field"></div>
           <button class="btn-add-bug">Add New Bug</button>
+
           <div class="bugs-list-header">
             <ul class="bugs-header-sections bugs-list">
               <li class="bugs-header-list-item">Status</li>
@@ -123,10 +136,21 @@
           </div>
 
           <div class="bugs-user-container">
-            <ul class="bugs-list bugs-list--user">
+            <!-- <ul class="bugs-list bugs-list--user">
               <li>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="status-icon tint-green">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"></path>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="status-icon tint-green"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M4.5 12.75l6 6 9-13.5"
+                  />
                 </svg>
               </li>
               <li class="bug--user-item tint-blue">
@@ -135,7 +159,7 @@
               <li class="bug--user-item">Jordan Gidman</li>
               <li class="bug--user-item tint-red">HIGH</li>
               <button class="btn-bug--delete">X</button>
-            </ul>
+            </ul> -->
           </div>
         </section>
       </div>
@@ -172,6 +196,7 @@
           </div>
         </form>
         <button class="btn-submit-bug">Add new bug</button>
+        <button class="btn-cancel-add-bug">Cancel</button>
       </div>
     </div>
   </body>

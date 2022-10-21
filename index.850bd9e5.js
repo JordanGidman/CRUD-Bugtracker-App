@@ -536,6 +536,9 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "saveData", ()=>saveData);
 parcelHelpers.export(exports, "getAccountData", ()=>getAccountData);
+parcelHelpers.export(exports, "updateProjects", ()=>updateProjects);
+parcelHelpers.export(exports, "updateTeamcode", ()=>updateTeamcode);
+parcelHelpers.export(exports, "updateBugs", ()=>updateBugs);
 parcelHelpers.export(exports, "activeUser", ()=>activeUser);
 parcelHelpers.export(exports, "activeProject", ()=>activeProject);
 parcelHelpers.export(exports, "controlSignin", ()=>controlSignin);
@@ -594,7 +597,6 @@ const getAccountData = async function() {
     querySnapshot.forEach((doc)=>{
         // console.log(`${doc.id} => ${doc.data()}`);
         let temp = doc.data();
-        console.log(temp);
         const bugs = convertBugs(temp.bugsArr);
         //Re apply the bug object to our bugs arr
         // new model.Bug(
@@ -610,6 +612,7 @@ const getAccountData = async function() {
         const user = new _modelJs.User(temp.username, temp.password, temp.teamcode, temp.projects);
         user.docId = doc.id;
         user.bugsArr = bugs;
+        user.projects = temp.projects;
         users.push(user);
     });
     //Update the state accounts array with the stored data
@@ -617,6 +620,22 @@ const getAccountData = async function() {
     console.log(_modelJs.state.accounts);
 };
 getAccountData();
+const updateProjects = async function(user) {
+    console.log(user);
+    const accountRef = (0, _firestore.doc)(db, "accounts", user.docId);
+    const userProjects = user.projects;
+    await (0, _firestore.updateDoc)(accountRef, {
+        projects: userProjects
+    });
+};
+const updateTeamcode = async function(user, inputTeamcode) {
+    console.log(user);
+    //Pull the user account
+    const accountRef = (0, _firestore.doc)(db, "accounts", user.docId);
+    await (0, _firestore.updateDoc)(accountRef, {
+        teamcode: inputTeamcode
+    });
+};
 const updateBugs = async function(user) {
     const accountRef = (0, _firestore.doc)(db, "accounts", user.docId);
     console.log(user.bugsArr);
@@ -654,11 +673,13 @@ const controlSignin = function() {
     // const teamcode = getTeamCode();
     //Pull saved data and check for account with username === to input
     //render all projects from the active user's projects Arr
-    activeUser.projects.push(`food app`, `Bug Tracker App`, `E-Commerce Site`); //remove line - DEVELOPEMNT
+    // activeUser.projects.push(`food app`, `Bug Tracker App`, `E-Commerce Site`); //remove line - DEVELOPEMNT
+    console.log(activeUser);
     activeUser.projects.forEach((proj)=>{
         const projId = proj.toLowerCase().replaceAll(` `, `-`);
         (0, _projectViewJsDefault.default).renderProjects(proj, projId);
     });
+    (0, _projectViewJsDefault.default).renderNewProjectForm();
     console.log(activeUser.projects);
     //render the page content and any bugs that are in the bugsArr (TOGGLED OFF FOR DEVELOPEMNT ADD THE HIDE CLASS TO THIS ELEMENT)
     document.querySelector(`.page-content-container`).classList.remove(`hide`);
@@ -669,7 +690,7 @@ const controlSignin = function() {
     userUsername.value = "";
     userPassword.value = "";
 };
-const controlSignup = function() {
+const controlSignup = async function() {
     //capture user data
     let userUsername = document.querySelector(`.input-username`);
     let userPassword = document.querySelector(`.input-password`);
@@ -682,7 +703,8 @@ const controlSignup = function() {
         return;
     }
     //create a team code
-    const teamcode = generateTeamCode();
+    // const teamcode = generateTeamCode();
+    const teamcode = 0;
     //create a new user object and add it to the state accounts arr
     const newUser = new _modelJs.User(userUsername.value, userPassword.value, teamcode);
     _modelJs.state.accounts.push(newUser);
@@ -690,6 +712,7 @@ const controlSignup = function() {
     console.log(_modelJs.state.accounts);
     saveData(newUser.toJSON());
     // localStorage.setItem("accounts", JSON.stringify(state.accounts));
+    await getAccountData();
     //Sign the user in
     controlSignin();
 // //close modal
@@ -720,6 +743,8 @@ const controlAddBug = function() {
     //add the bug to the activeUsers bugsArr
     activeUser.bugsArr.push(bugObj);
     updateBugs(activeUser);
+    //render the markup onto the user bugs list
+    (0, _bugViewJsDefault.default).renderBugs(bugObj);
     //clear input fields
     bugname.value = ``;
     bugprio.value = ``;
@@ -728,23 +753,21 @@ const controlAddBug = function() {
     bugfinder.value = ``;
     bugstatus.value = ``;
     //generate the markup for a new bug element
-    //render the markup onto the user bugs list
     //close modal window
     document.querySelector(`.bug-modal`).classList.add(`hide`);
 };
 const getProjectBugs = function(project) {
     //this is the name we will search for
     //Set active project to be the project name
-    activeProject = project.textContent;
-    //render the selected project view
+    if (activeProject !== project) activeProject = project.textContent;
+    //remove existing nav
+    document.querySelector(`.aside-nav-list`).innerHTML = ``;
+    //render the selected project div
     (0, _projectViewJsDefault.default).renderSelectedProject(activeProject);
-    //replace the aside nav with a project specific Nav
+    //add projectNav
+    (0, _projectViewJsDefault.default).renderProjectNav();
     //search the users bugs arr for any bugs with the project name === project.textContent
-    const currProjBugs = activeUser.bugsArr.filter((b)=>{
-        console.log(b.bugProject);
-        console.log(activeProject);
-        return b.bugProject === activeProject;
-    });
+    const currProjBugs = activeUser.bugsArr.filter((b)=>b.bugProject === activeProject);
     //render all the bugs found to the bug view
     currProjBugs.forEach((bug)=>{
         (0, _bugViewJsDefault.default).renderBugs(bug);
@@ -757,19 +780,68 @@ const generateTeamCode = function() {
     if (_modelJs.state.accounts.find((acc)=>acc.teamCode === randomNum)) generateTeamCode();
     return randomNum;
 };
-const getTeamCode = function() {};
+const handleProjectNav = function(e) {
+    console.log(e.target.textContent);
+    console.log(`yeberg`);
+    //find which link was used
+    //active tasks is default view of all the projects bugs
+    if (e.target.textContent === `Active Tasks`) {
+        document.querySelector(`.bugs-user-container`).innerHTML = ``;
+        getProjectBugs(activeProject);
+    }
+    //urgent tasks
+    //filter the activeUser bugs arr for all bugs with priority = high
+    if (e.target.textContent === `Urgent Tasks`) {
+        const urgentBugs = activeUser.bugsArr.filter((b)=>b.bugPriority === "HIGH");
+        document.querySelector(`.bugs-user-container`).innerHTML = ``;
+        //then render the found bugs
+        urgentBugs.forEach((bug)=>{
+            (0, _bugViewJsDefault.default).renderBugs(bug);
+        });
+    }
+//Team tasks
+//check teamcode given by user
+//if !teamcode or teamcode wrong then return
+//if right team code find all users with the same one and render all their bugs arrs to screen
+};
+const projectNavBack = function() {
+    console.log(activeUser);
+    document.querySelector(`.aside-nav-list`).innerHTML = "";
+    document.querySelector(`.bugs-user-container`).innerHTML = "";
+    document.querySelector(`.section-main`).classList.add(`hide`);
+    activeUser.projects.forEach((proj)=>{
+        const projId = proj.toLowerCase().replaceAll(` `, `-`);
+        (0, _projectViewJsDefault.default).renderProjects(proj, projId);
+    });
+    (0, _projectViewJsDefault.default).renderNewProjectForm();
+};
+//check btn clicked
 const checkBtnClicked = function(e) {
-    //check btn clicked
+    //All event listeners
     //Signin button
     if (e.target.classList.contains(`cta-signin`)) controlSignin();
     //Signup button
     if (e.target.classList.contains(`cta-signup`)) controlSignup();
-    //Add bug button
+    //Add bug modal
     if (e.target.classList.contains(`btn-add-bug`)) controlAddBugModal();
+    //Close add bug modal
+    if (e.target.classList.contains(`btn-cancel-add-bug`)) document.querySelector(`.bug-modal`).classList.add(`hide`);
     //Submit bug button
     if (e.target.classList.contains(`btn-submit-bug`)) controlAddBug();
     //Project name link
     if (e.target.classList.contains(`aside-nav-link`)) getProjectBugs(e.target);
+    //Delete bug
+    if (e.target.classList.contains(`btn-bug--delete`)) _modelJs.deleteBug(e);
+    //Add Project Button
+    if (e.target.classList.contains(`add-project-button`)) _modelJs.addProject();
+    //Project nav links
+    if (e.target.classList.contains(`project-nav-link`)) handleProjectNav(e);
+    //Project nav back
+    if (e.target.classList.contains(`btn-projects-back`)) projectNavBack();
+    //Create new teamcode
+    if (e.target.classList.contains(`teamcode-create`)) _modelJs.createTeamCode(e);
+    //Join existing teamcode
+    if (e.target.classList.contains(`teamcode-join`)) _modelJs.joinTeam(e);
 };
 const init = function() {
     (0, _bugViewJsDefault.default).addHandler(checkBtnClicked);
@@ -790,9 +862,19 @@ parcelHelpers.export(exports, "state", ()=>state);
 // }
 parcelHelpers.export(exports, "Bug", ()=>Bug);
 parcelHelpers.export(exports, "User", ()=>User);
+parcelHelpers.export(exports, "deleteBug", ()=>deleteBug);
+parcelHelpers.export(exports, "addProject", ()=>addProject);
+parcelHelpers.export(exports, "createTeamCode", ()=>createTeamCode);
+parcelHelpers.export(exports, "joinTeam", ()=>joinTeam);
+parcelHelpers.export(exports, "leaveTeam", ()=>leaveTeam);
 //DB KEY
+var _fs = require("fs");
 var _tls = require("tls");
 var _util = require("util");
+var _controller = require("./controller");
+var _controllerJs = require("./controller.js");
+var _projectView = require("./projectView");
+var _projectViewDefault = parcelHelpers.interopDefault(_projectView);
 const state = {
     activeUser: {},
     search: {},
@@ -854,8 +936,93 @@ const getTeamCode = function() {
     //if join team is clicked take the code and gather all accounts with that same code
     return ``;
 };
+const deleteBug = function(e) {
+    e.preventDefault();
+    //Select the container
+    const parentEl = document.querySelector(`.bugs-user-container`);
+    //Select the entire parent bug element
+    const el = e.target.parentNode;
+    //remove it from user bugsArr
+    const currBug = el.childNodes[3].textContent.replaceAll(`\n`, ``).split(` `).filter((arrEl)=>arrEl !== ` ` && arrEl != ``).join(` `);
+    const newBugsArr = (0, _controller.activeUser).bugsArr.filter((bug)=>bug.bugName !== currBug);
+    console.log(newBugsArr);
+    (0, _controller.activeUser).bugsArr = newBugsArr;
+    (0, _controllerJs.updateBugs)((0, _controller.activeUser));
+    // activeUser.bugsArr = activeUser.bugsArr.filter(bug => bug.bugName !== )
+    //remove it from the UI - one option may be to remove it first from the database then re pull and re render the bugs arr
+    parentEl.removeChild(el);
+//Remove it from user stored datat bugsArr
+};
+const addProject = function() {
+    (0, _controller.getAccountData)();
+    //capture input data
+    //Push the input data to active user Projects arr
+    const newProj = document.querySelector(`.input-new-project-name`);
+    (0, _controller.activeUser).projects.push(newProj.value);
+    //Update the database
+    (0, _controller.updateProjects)((0, _controller.activeUser));
+    //Update UI
+    document.querySelector(`.aside-nav-list`).innerHTML = ``;
+    (0, _controller.activeUser).projects.forEach((p)=>(0, _projectViewDefault.default).renderProjects(p));
+    (0, _projectViewDefault.default).renderNewProjectForm();
+};
+const createTeamCode = function(e) {
+    e.preventDefault();
+    //form validation
+    //capture input data
+    const inputTeamcode = document.querySelector(`.input-teamcode`).value;
+    //check if teamcode is in use
+    //set the current users teamcode to be === to the data
+    (0, _controller.activeUser).teamcode = inputTeamcode;
+    //update the user in storage
+    (0, _controller.updateTeamcode)((0, _controller.activeUser), inputTeamcode);
+};
+const joinTeam = function(e) {
+    e.preventDefault();
+    //capture input data
+    const inputTeamcode = document.querySelector(`.input-teamcode`).value;
+    //un render the bugview
+    document.querySelector(`.bugs-user-container`).innerHTML = ``;
+    //if there are none error
+    if (!state.accounts.find((acc)=>acc.teamcode === inputTeamcode)) {
+        alert(`Sorry, there is no team with that code`);
+        return;
+    }
+    //set the active users teamcode to be the input
+    (0, _controller.activeUser).teamcode = inputTeamcode;
+    (0, _controller.updateTeamcode)((0, _controller.activeUser), inputTeamcode);
+    //make an array of users that have the same teamcode using find
+    const teamMembers = state.accounts.filter((acc)=>acc.teamcode === inputTeamcode);
+    console.log(teamMembers);
+    //get all unique projects
+    let teamProjects = [];
+    teamMembers.forEach((acc)=>teamProjects.push(acc.projects));
+    teamProjects = new Set(teamProjects.flatMap((proj)=>proj));
+    console.log(teamProjects);
+    //get all unique bugs
+    let teamBugs = [];
+    teamMembers.forEach((acc)=>teamBugs.push(acc.bugsArr));
+    teamBugs = new Set(teamBugs.flatMap((bug)=>bug));
+    console.log(teamBugs);
+    //update the active user projects and bugs with any non duplicates
+    (0, _controller.activeUser).projects = Array.from(teamProjects);
+    (0, _controller.activeUser).bugsArr = Array.from(teamBugs);
+    console.log((0, _controller.activeUser));
+    //render the new projects
+    document.querySelector(`.aside-nav-list`).innerHTML = ``;
+    (0, _controller.activeUser).projects.forEach((proj)=>{
+        const projId = proj.toLowerCase().replaceAll(` `, `-`);
+        (0, _projectViewDefault.default).renderProjects(proj, projId);
+    });
+    (0, _projectViewDefault.default).renderNewProjectForm();
+};
+const leaveTeam = function(e) {
+    e.preventDefault();
+    (0, _controller.activeUser).teamcode = 0;
+    (0, _controller.updateTeamcode)((0, _controller.activeUser), 0);
+};
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","util":"cxohQ","tls":"jhUEF"}],"gkKU3":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","util":"cxohQ","tls":"jhUEF","./controller":"1GgH0","./controller.js":"1GgH0","./projectView":"7agfK","fs":"jhUEF"}],"gkKU3":[function(require,module,exports) {
 exports.interopDefault = function(a) {
     return a && a.__esModule ? a : {
         default: a
@@ -2697,7 +2864,76 @@ module.exports = function inherits(ctor, superCtor) {
 },{}],"jhUEF":[function(require,module,exports) {
 "use strict";
 
-},{}],"kJLxY":[function(require,module,exports) {
+},{}],"7agfK":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+class projectView {
+    #parentElement = document.querySelector(`.aside-nav-list`);
+    #data;
+    renderProjects(data) {
+        this.#data = data;
+        const projectsMarkup = this._generateProjectMarkup(this.#data);
+        this.#parentElement.insertAdjacentHTML(`beforeend`, projectsMarkup);
+    }
+    renderNewProjectForm() {
+        const addProjectForm = this._generateNewProjectFormMarkup();
+        this.#parentElement.insertAdjacentHTML(`beforeend`, addProjectForm);
+    }
+    renderProjectView(data) {}
+    renderSelectedProject(proj) {
+        const projMarkup = `<div class="project-selected-view">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke-width="1.5"
+      stroke="currentColor"
+      class="project-icon"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776"
+      />
+    </svg>
+    <div class="project-selection-text">
+      <h3 class="aside-project-title">${proj}</h3>
+      <p class="aside-project-type">Software Project</p>
+    </div>
+  </div> `;
+        this.#parentElement.insertAdjacentHTML(`afterbegin`, projMarkup);
+    }
+    renderProjectNav() {
+        const navMarkup = `<li class="aside-nav-item">
+    <a href="#" class="project-nav-link">Active Tasks</a>
+  </li>
+    <li class="aside-nav-item">
+    <a href="#" class="project-nav-link">Urgent Tasks</a>
+  </li>
+  <li class="aside-nav-item">
+    <a href="#" class="project-nav-link">Team Tasks</a>
+  </li>
+  <button class="btn-projects-back">Back</button>`;
+        this.#parentElement.insertAdjacentHTML(`beforeend`, navMarkup);
+    }
+    _generateProjectMarkup(_, id) {
+        return ` <li class="aside-nav-item">
+    <a href="#" class="aside-nav-link aside-project-${id}">${this.#data}</a>
+  </li>`;
+    }
+    _generateNewProjectFormMarkup() {
+        return ` <div class="add-project-container">
+    <label for="input-new-project-name" class="add-project-title"
+      >Project Name</label
+    >
+    <input class="input-new-project-name" type="text" />
+    <button class="add-project-button">Add New Project</button>
+  </div>`;
+    }
+}
+exports.default = new projectView();
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kJLxY":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 const btnSignup = document.querySelector(`.cta-signup`);
@@ -2732,7 +2968,7 @@ class bugView {
     </li>
     <li class="bug--user-item bug-finder-name">${this.#data.bugFinder}</li>
     <li class="bug--user-item tint-red bug-prio">${this.#data.bugPriority}</li>
-    <button class="btn-bug--delete">X</button>
+    <button class="btn-bug--delete">DELETE</button>
   </ul>`;
     }
     addHandler(handler) {
@@ -4001,8 +4237,8 @@ parcelHelpers.export(exports, "validateCallback", ()=>validateCallback);
 parcelHelpers.export(exports, "validateContextObject", ()=>validateContextObject);
 parcelHelpers.export(exports, "validateIndexedDBOpenable", ()=>validateIndexedDBOpenable);
 parcelHelpers.export(exports, "validateNamespace", ()=>validateNamespace);
-var global = arguments[3];
 var process = require("process");
+var global = arguments[3];
 /**
  * @license
  * Copyright 2017 Google LLC
@@ -26465,49 +26701,6 @@ var Stat = esm.Stat = {
 var FetchXmlHttpFactory = esm.FetchXmlHttpFactory = ed;
 var WebChannel = esm.WebChannel = Ub;
 var XhrIo = esm.XhrIo = W;
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7agfK":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-class projectView {
-    #parentElement = document.querySelector(`.aside-nav-list`);
-    #data;
-    renderProjects(data) {
-        this.#data = data;
-        const projectsMarkup = this._generateProjectMarkup(this.#data);
-        this.#parentElement.insertAdjacentHTML(`afterbegin`, projectsMarkup);
-    }
-    renderProjectView(data) {}
-    renderSelectedProject(proj) {
-        const projMarkup = `<div class="project-selected-view">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke-width="1.5"
-      stroke="currentColor"
-      class="project-icon"
-    >
-      <path
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776"
-      />
-    </svg>
-    <div class="project-selection-text">
-      <h3 class="aside-project-title">${proj}</h3>
-      <p class="aside-project-type">Software Project</p>
-    </div>
-  </div> `;
-        this.#parentElement.insertAdjacentHTML(`afterbegin`, projMarkup);
-    }
-    _generateProjectMarkup(proj, id) {
-        return ` <li class="aside-nav-item">
-    <a href="#" class="aside-nav-link aside-project-${id}">${this.#data}</a>
-  </li>`;
-    }
-}
-exports.default = new projectView();
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["bxIRe","1GgH0"], "1GgH0", "parcelRequire22be")
 
