@@ -67,20 +67,9 @@ body {
 }
 
 .btn-teamcode {
+  height: 3.2rem;
   width: 10rem;
-  text-transform: uppercase;
-  background: linear-gradient(90deg, #69bcdb 0%, #228be6 100%, #0068ff 100%);
-  border: none;
-  border-radius: .8rem;
-  padding: .5rem;
-  font-size: 1.6rem;
-  font-weight: 600;
-  transition: all .3s;
-}
-
-.btn-teamcode:hover {
-  cursor: pointer;
-  background: #69bcdb;
+  font-size: 1.8rem;
 }
 
 .btn-teamcode-help {
@@ -101,8 +90,8 @@ body {
   z-index: 999;
   width: 70%;
   height: 70%;
-  color: #000;
-  background: linear-gradient(90deg, #69bcdb 0%, #228be6 100%, #0068ff 100%);
+  color: #fff;
+  background-image: radial-gradient(100% 100% at 100% 0, #5adaff 0, #5468ff 100%);
   border-radius: 1rem;
   flex-direction: column;
   justify-content: center;
@@ -113,6 +102,7 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  box-shadow: 0 1rem 3rem 1rem #0003;
 }
 
 .login-title {
@@ -152,19 +142,9 @@ body {
 }
 
 .cta-signup, .cta-signin {
-  color: #228be6;
-  text-transform: uppercase;
+  height: 4.8rem;
   width: 10rem;
-  border: none;
-  border-radius: 1rem;
-  padding: 1rem;
   font-size: 1.8rem;
-  transition: all .3s;
-}
-
-.cta-signup:hover, .cta-signin:hover {
-  cursor: pointer;
-  background: #69bcdb;
 }
 
 .main-aside {
@@ -185,8 +165,8 @@ body {
 .project-icon {
   width: 6rem;
   height: 6rem;
-  stroke: #000;
-  background: linear-gradient(90deg, #69bcdb 0%, #228be6 100%, #0068ff 100%);
+  stroke: #fff;
+  background-image: radial-gradient(100% 100% at 100% 0, #5adaff 0, #5468ff 100%);
   border-radius: 1rem;
   justify-content: center;
   align-items: center;
@@ -235,36 +215,13 @@ body {
 
 .add-project-button, .btn-projects-back, .btn-add-bug {
   width: 18rem;
-  background: linear-gradient(90deg, #69bcdb 0%, #228be6 100%, #0068ff 100%);
-  border: none;
-  border-radius: .8rem;
-  padding: .5rem;
-  font-size: 1.6rem;
-  font-weight: 600;
-  transition: all .3s;
-}
-
-.btn-cancel-add-bug, .btn-submit-bug {
-  width: 18rem;
-  color: #000;
-  background-color: #fff;
-  border: none;
-  border-radius: .8rem;
-  margin-top: 1.2rem;
-  padding: .5rem;
+  height: 3.2rem;
+  margin-bottom: 2rem;
   font-size: 1.8rem;
-  font-weight: 600;
-  transition: all .3s;
-}
-
-.btn-cancel-add-bug:hover, .btn-submit-bug:hover {
-  cursor: pointer;
-  color: #fff;
-  background-color: #228be6;
 }
 
 .add-project-container {
-  border: 1px solid #228be6;
+  border: 1px solid #5468ff;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -276,11 +233,6 @@ body {
 
 .add-project-title {
   font-size: 1.6rem;
-}
-
-.add-project-button:hover, .btn-projects-back:hover, .btn-add-bug:hover {
-  cursor: pointer;
-  background: #69bcdb;
 }
 
 .section-main {
@@ -296,8 +248,8 @@ body {
 }
 
 .content-heading {
-  color: #228be6;
-  margin-bottom: 3.2rem;
+  color: #5468ff;
+  margin-bottom: 1.6rem;
   font-size: 3rem;
 }
 
@@ -341,8 +293,8 @@ body {
   z-index: 999;
   width: 70%;
   height: 70%;
-  color: #000;
-  background: linear-gradient(90deg, #69bcdb 0%, #228be6 100%, #0068ff 100%);
+  color: #fff;
+  background-color: #5468ff;
   border-radius: 1rem;
   flex-direction: column;
   justify-content: center;
@@ -368,6 +320,7 @@ body {
 
 .bug-modal-label {
   letter-spacing: .05rem;
+  margin-bottom: 1rem;
   font-size: 2rem;
   font-weight: 600;
 }
@@ -381,8 +334,10 @@ body {
 }
 
 .new-bug-form {
+  text-align: center;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1.2rem;
+  gap: 1.4rem;
+  margin-bottom: 1.2rem;
   display: grid;
 }
 
@@ -393,6 +348,44 @@ body {
 
 .input-bug-desc, .input-bug-tags {
   height: 10rem;
+}
+
+.btn-cancel-add-bug, .btn-submit-bug {
+  height: 4.8rem;
+  width: 10rem;
+  font-size: 1.8rem;
+}
+
+.selected-bug {
+  text-align: center;
+  background-image: radial-gradient(100% 100% at 100% 0, #5adaff 0, #5468ff 100%);
+  border-radius: 2rem;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  padding: 2rem;
+  display: flex;
+}
+
+.selected-bug-title {
+  color: #fff;
+  font-size: 3.2rem;
+}
+
+.selected-bug-data {
+  color: #fff;
+  font-size: 1.8rem;
+  font-weight: 500;
+}
+
+.bug-edit-form {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  padding: 1.2rem;
+  display: flex;
 }
 
 .tint-blue {

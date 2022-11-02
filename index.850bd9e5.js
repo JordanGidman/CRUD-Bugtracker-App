@@ -541,6 +541,7 @@ parcelHelpers.export(exports, "updateTeamcode", ()=>updateTeamcode);
 parcelHelpers.export(exports, "updateBugs", ()=>updateBugs);
 parcelHelpers.export(exports, "activeUser", ()=>activeUser);
 parcelHelpers.export(exports, "activeProject", ()=>activeProject);
+parcelHelpers.export(exports, "activeBug", ()=>activeBug);
 parcelHelpers.export(exports, "controlSignin", ()=>controlSignin);
 parcelHelpers.export(exports, "controlSignup", ()=>controlSignup);
 var _modelJs = require("./model.js");
@@ -591,33 +592,37 @@ const saveData = async function(data) {
 };
 const getAccountData = async function() {
     //Pull the data from db
-    const querySnapshot = await (0, _firestore.getDocs)((0, _firestore.collection)(db, "accounts"));
-    const users = [];
-    //convert data back into user objects
-    querySnapshot.forEach((doc)=>{
-        // console.log(`${doc.id} => ${doc.data()}`);
-        let temp = doc.data();
-        const bugs = convertBugs(temp.bugsArr);
-        //Re apply the bug object to our bugs arr
-        // new model.Bug(
-        //   b.bugName,
-        //   b.bugPriority,
-        //   b.bugTags,
-        //   b.bugDescription,
-        //   b.bugFinder,
-        //   b.bugStatus,
-        //   b.bugProject
-        // );
-        //Re apply the prototype to the users and push them to the users array
-        const user = new _modelJs.User(temp.username, temp.password, temp.teamcode, temp.projects);
-        user.docId = doc.id;
-        user.bugsArr = bugs;
-        user.projects = temp.projects;
-        users.push(user);
-    });
-    //Update the state accounts array with the stored data
-    _modelJs.state.accounts = users;
-    console.log(_modelJs.state.accounts);
+    try {
+        const querySnapshot = await (0, _firestore.getDocs)((0, _firestore.collection)(db, "accounts"));
+        const users = [];
+        //convert data back into user objects
+        querySnapshot.forEach((doc)=>{
+            // console.log(`${doc.id} => ${doc.data()}`);
+            let temp = doc.data();
+            // Re apply the bug object to our bugs arr
+            const bugs = convertBugs(temp.bugsArr);
+            // new model.Bug(
+            //   temp.bugName,
+            //   temp.bugPriority,
+            //   temp.bugTags,
+            //   temp.bugDescription,
+            //   temp.bugFinder,
+            //   temp.bugStatus,
+            //   temp.bugProject
+            // );
+            //Re apply the prototype to the users and push them to the users array
+            const user = new _modelJs.User(temp.username, temp.password, temp.teamcode, temp.projects);
+            user.docId = doc.id;
+            user.bugsArr = bugs;
+            user.projects = temp.projects;
+            users.push(user);
+        });
+        //Update the state accounts array with the stored data
+        _modelJs.state.accounts = users;
+        console.log(_modelJs.state.accounts);
+    } catch (err) {
+        console.log(err);
+    }
 };
 getAccountData();
 const updateProjects = async function(user) {
@@ -649,12 +654,13 @@ const updateBugs = async function(user) {
 const convertBugs = function(bugsArray) {
     let newBugs = [];
     bugsArray.forEach((b)=>{
-        newBugs.push(new _modelJs.Bug(b.bugName, b.bugPriority, b.bugTags, b.bugDescription, b.bugFinder, b.bugStatus, b.bugProject));
+        newBugs.push(new _modelJs.Bug(b.bugName, b.bugPriority, b.bugDescription, b.bugTags, b.bugFinder, b.bugStatus, b.bugProject));
     });
     return newBugs;
 };
 let activeUser;
 let activeProject;
+let activeBug;
 const controlSignin = function() {
     //capture user data
     let userUsername = document.querySelector(`.input-username`);
@@ -694,6 +700,11 @@ const controlSignup = async function() {
     //capture user data
     let userUsername = document.querySelector(`.input-username`);
     let userPassword = document.querySelector(`.input-password`);
+    //Validation
+    if (!_modelJs.onlyLetters(userUsername.value)) {
+        alert(`Spaces and special characters not allowed in username.`);
+        return;
+    }
     //Check if stored accounts array has an account with the same user name. If yes return and error
     if (_modelJs.state.accounts.find((acc)=>acc.username === userUsername.value)) {
         alert(`An Account with this name already exists`);
@@ -717,7 +728,7 @@ const controlSignup = async function() {
     controlSignin();
 // //close modal
 // document.querySelector(`.login-form-container`).classList.add(`hide`);
-// //Display signed up message from the view (somehow)
+// //Display signed up message from the view
 // //clear input fields
 // userUsername.value = "";
 // userPassword.value = "";
@@ -728,31 +739,14 @@ const controlAddBugModal = function() {
     //open modal window
     document.querySelector(`.bug-modal`).classList.remove(`hide`);
 };
-const updateBugUI = function(data) {};
 const controlAddBug = function() {
-    //Capture input data
-    let bugname = document.querySelector(`.input-bug-name`);
-    let bugprio = document.querySelector(`.input-bug-prio`);
-    let bugdesc = document.querySelector(`.input-bug-desc`);
-    let bugtags = document.querySelector(`.input-bug-tags`);
-    let bugfinder = document.querySelector(`.input-bug-finder`);
-    let bugstatus = document.querySelector(`.input-bug-status`);
-    //create a new bug using the class - passing in the inputted data
-    const bugObj = new _modelJs.Bug(bugname.value, bugprio.value, bugdesc.value, bugtags.value, bugfinder.value, bugstatus.value, activeProject);
+    const bugObj = captureUserInput();
     console.log(bugObj);
     //add the bug to the activeUsers bugsArr
     activeUser.bugsArr.push(bugObj);
     updateBugs(activeUser);
     //render the markup onto the user bugs list
     (0, _bugViewJsDefault.default).renderBugs(bugObj);
-    //clear input fields
-    bugname.value = ``;
-    bugprio.value = ``;
-    bugdesc.value = ``;
-    bugtags.value = ``;
-    bugfinder.value = ``;
-    bugstatus.value = ``;
-    //generate the markup for a new bug element
     //close modal window
     document.querySelector(`.bug-modal`).classList.add(`hide`);
 };
@@ -760,6 +754,8 @@ const getProjectBugs = function(project) {
     //this is the name we will search for
     //Set active project to be the project name
     if (activeProject !== project) activeProject = project.textContent;
+    //Set the section text and path
+    (0, _bugViewJsDefault.default).renderProjectsTextChange(activeProject);
     //remove existing nav
     document.querySelector(`.aside-nav-list`).innerHTML = ``;
     //render the selected project div
@@ -775,11 +771,6 @@ const getProjectBugs = function(project) {
     //render the bugView
     document.querySelector(`.section-main`).classList.remove(`hide`);
 };
-const generateTeamCode = function() {
-    const randomNum = Math.trunc(Math.random() * 1000000);
-    if (_modelJs.state.accounts.find((acc)=>acc.teamCode === randomNum)) generateTeamCode();
-    return randomNum;
-};
 const handleProjectNav = function(e) {
     console.log(e.target.textContent);
     console.log(`yeberg`);
@@ -788,6 +779,7 @@ const handleProjectNav = function(e) {
     if (e.target.textContent === `Active Tasks`) {
         document.querySelector(`.bugs-user-container`).innerHTML = ``;
         getProjectBugs(activeProject);
+        (0, _bugViewJsDefault.default).renderProjectPathChange(activeProject, `Active Tasks`);
     }
     //urgent tasks
     //filter the activeUser bugs arr for all bugs with priority = high
@@ -798,11 +790,33 @@ const handleProjectNav = function(e) {
         urgentBugs.forEach((bug)=>{
             (0, _bugViewJsDefault.default).renderBugs(bug);
         });
+        (0, _bugViewJsDefault.default).renderProjectPathChange(activeProject, `Urgent Tasks`);
     }
-//Team tasks
-//check teamcode given by user
-//if !teamcode or teamcode wrong then return
-//if right team code find all users with the same one and render all their bugs arrs to screen
+    //Team tasks
+    if (e.target.textContent === `Team Tasks`) {
+        //check teamcode given by user
+        //if !teamcode or teamcode wrong then return
+        if (activeUser.teamcode === 0) {
+            alert(`Please join or create a team code`);
+            return;
+        }
+        if (!_modelJs.state.accounts.find((acc)=>acc.teamcode === activeUser.teamcode)) {
+            alert(`Sorry There is no team with that code`);
+            return;
+        }
+        document.querySelector(`.bugs-user-container`).innerHTML = ``;
+        let teamBugs = [];
+        //if right team code find all users with the same one
+        const teamMates = _modelJs.state.accounts.filter((acc)=>acc.teamcode === activeUser.teamcode && acc.username !== activeUser.username);
+        console.log(teamMates);
+        teamMates.forEach((acc)=>teamBugs.push(acc.bugsArr.filter((bug)=>bug.bugProject === activeProject)));
+        //render all their bugs arrs that match the activeProject to screen
+        teamBugs = teamBugs.flatMap((bug)=>bug);
+        console.log(teamBugs);
+        teamBugs.forEach((bug)=>{
+            (0, _bugViewJsDefault.default).renderBugs(bug);
+        });
+    }
 };
 const projectNavBack = function() {
     console.log(activeUser);
@@ -814,6 +828,52 @@ const projectNavBack = function() {
         (0, _projectViewJsDefault.default).renderProjects(proj, projId);
     });
     (0, _projectViewJsDefault.default).renderNewProjectForm();
+};
+const openSelectedBug = function(e) {
+    console.log(`worked`);
+    const temp = e.target.closest(`.bug-name`).innerHTML.replaceAll(`\n`, ``).split(` `).filter((c)=>c !== ``).join(` `);
+    console.log(activeUser);
+    activeBug = activeUser.bugsArr.find((bug)=>bug.bugName === temp);
+    console.log(activeBug);
+    (0, _bugViewJsDefault.default).renderSelectedBug(activeUser.bugsArr.find((bug)=>bug.bugName === temp));
+};
+const updateEditedBug = function(bug) {
+    const bugObj = captureUserInput();
+    //Validation
+    if (!bugObj) return;
+    //delete the current bug
+    const newBugsArr = activeUser.bugsArr.filter((bug)=>bug !== activeBug);
+    newBugsArr.push(bugObj);
+    activeUser.bugsArr = newBugsArr;
+    //Save to database
+    updateBugs(activeUser);
+};
+const captureUserInput = function() {
+    //Capture input data
+    let bugname = document.querySelector(`.input-bug-name`);
+    let bugprio = document.querySelector(`.input-bug-prio`);
+    let bugdesc = document.querySelector(`.input-bug-desc`);
+    let bugtags = document.querySelector(`.input-bug-tags`);
+    let bugfinder = document.querySelector(`.input-bug-finder`);
+    let bugstatus = document.querySelector(`.input-bug-status`);
+    //Validation
+    if (bugname.value === `` || bugname.value === ` ` || bugprio.value === `` || bugprio.value === ` ` || bugdesc.value === `` || bugdesc.value === ` ` || bugfinder.value === `` || bugfinder.value === ` ` || bugstatus.value === `` || bugstatus.value === ` `) {
+        alert(`Please fill in all required fields. Only tags is optional`);
+        return;
+    }
+    if (activeUser.bugsArr.find((bug)=>bug.bugName === bugname.value)) {
+        alert(`A bug with that name already exists. Please check someone has not already begun tracking this issue.`);
+        return;
+    }
+    //create a new bug using the class - passing in the inputted data
+    const bugObj = new _modelJs.Bug(bugname.value, bugprio.value, bugdesc.value, bugtags.value, bugfinder.value, bugstatus.value, activeProject);
+    bugname.value = ``;
+    bugprio.value = ``;
+    bugdesc.value = ``;
+    bugtags.value = ``;
+    bugfinder.value = ``;
+    bugstatus.value = ``;
+    return bugObj;
 };
 //check btn clicked
 const checkBtnClicked = function(e) {
@@ -828,7 +888,7 @@ const checkBtnClicked = function(e) {
     if (e.target.classList.contains(`btn-cancel-add-bug`)) document.querySelector(`.bug-modal`).classList.add(`hide`);
     //Submit bug button
     if (e.target.classList.contains(`btn-submit-bug`)) controlAddBug();
-    //Project name link
+    //aside main link
     if (e.target.classList.contains(`aside-nav-link`)) getProjectBugs(e.target);
     //Delete bug
     if (e.target.classList.contains(`btn-bug--delete`)) _modelJs.deleteBug(e);
@@ -837,11 +897,20 @@ const checkBtnClicked = function(e) {
     //Project nav links
     if (e.target.classList.contains(`project-nav-link`)) handleProjectNav(e);
     //Project nav back
-    if (e.target.classList.contains(`btn-projects-back`)) projectNavBack();
+    if (e.target.classList.contains(`btn-projects-back`)) {
+        projectNavBack();
+        document.querySelector(`.bugs-list-header`).classList.remove(`hide`);
+    }
     //Create new teamcode
     if (e.target.classList.contains(`teamcode-create`)) _modelJs.createTeamCode(e);
     //Join existing teamcode
     if (e.target.classList.contains(`teamcode-join`)) _modelJs.joinTeam(e);
+    // bug clicked by user
+    if (e.target.classList.contains(`bugs-list`) || e.target.classList.contains(`bug--user-item`)) openSelectedBug(e);
+    //Edit bug button
+    if (e.target.classList.contains(`btn-edit-bug`)) //render the bug-modal form
+    (0, _bugViewJsDefault.default).renderEditBug();
+    if (e.target.classList.contains(`btn-update-bug`)) updateEditedBug(activeBug);
 };
 const init = function() {
     (0, _bugViewJsDefault.default).addHandler(checkBtnClicked);
@@ -863,6 +932,7 @@ parcelHelpers.export(exports, "state", ()=>state);
 parcelHelpers.export(exports, "Bug", ()=>Bug);
 parcelHelpers.export(exports, "User", ()=>User);
 parcelHelpers.export(exports, "deleteBug", ()=>deleteBug);
+parcelHelpers.export(exports, "onlyLetters", ()=>onlyLetters);
 parcelHelpers.export(exports, "addProject", ()=>addProject);
 parcelHelpers.export(exports, "createTeamCode", ()=>createTeamCode);
 parcelHelpers.export(exports, "joinTeam", ()=>joinTeam);
@@ -953,11 +1023,19 @@ const deleteBug = function(e) {
     parentEl.removeChild(el);
 //Remove it from user stored datat bugsArr
 };
+function onlyLetters(str) {
+    return /^[a-zA-Z]+$/.test(str);
+}
 const addProject = function() {
     (0, _controller.getAccountData)();
     //capture input data
     //Push the input data to active user Projects arr
     const newProj = document.querySelector(`.input-new-project-name`);
+    //Validation
+    if (newProj.value === `` || newProj.value === ` `) {
+        alert(`Please enter a valid project name`);
+        return;
+    }
     (0, _controller.activeUser).projects.push(newProj.value);
     //Update the database
     (0, _controller.updateProjects)((0, _controller.activeUser));
@@ -968,9 +1046,13 @@ const addProject = function() {
 };
 const createTeamCode = function(e) {
     e.preventDefault();
-    //form validation
     //capture input data
     const inputTeamcode = document.querySelector(`.input-teamcode`).value;
+    //form validation
+    if (!onlyLetters(inputTeamcode)) {
+        alert(`Spaces and special characters not allowed`);
+        return;
+    }
     //check if teamcode is in use
     //set the current users teamcode to be === to the data
     (0, _controller.activeUser).teamcode = inputTeamcode;
@@ -2913,7 +2995,7 @@ class projectView {
   <li class="aside-nav-item">
     <a href="#" class="project-nav-link">Team Tasks</a>
   </li>
-  <button class="btn-projects-back">Back</button>`;
+  <button class="btn-projects-back highlight-btn">Back</button>`;
         this.#parentElement.insertAdjacentHTML(`beforeend`, navMarkup);
     }
     _generateProjectMarkup(_, id) {
@@ -2927,7 +3009,7 @@ class projectView {
       >Project Name</label
     >
     <input class="input-new-project-name" type="text" />
-    <button class="add-project-button">Add New Project</button>
+    <button class="add-project-button highlight-btn">Add New Project</button>
   </div>`;
     }
 }
@@ -2936,6 +3018,7 @@ exports.default = new projectView();
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kJLxY":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
+var _controller = require("./controller");
 const btnSignup = document.querySelector(`.cta-signup`);
 class bugView {
     #parentElement = document.querySelector(`.bugs-user-container`);
@@ -2944,6 +3027,39 @@ class bugView {
         this.#data = data;
         const markup = this._generateMarkup();
         this.#parentElement.insertAdjacentHTML(`afterbegin`, markup);
+    }
+    renderSelectedBug(data) {
+        this.#data = data;
+        const markup = this._selectedBugMarkup();
+        //hide the current data panel
+        this.#parentElement.innerHTML = ``;
+        document.querySelector(`.bugs-list-header`).classList.add(`hide`);
+        //Change the text and button
+        //render selected bug view
+        this.#parentElement.insertAdjacentHTML(`afterbegin`, markup);
+        console.log(`worked fella`);
+    }
+    renderEditBug(data) {
+        // this.#data = data;
+        const markup = this._generateEditBugMarkup();
+        document.querySelector(`.bugs-list-header`).innerHTML = ``;
+        document.querySelector(`.bugs-list-header`).classList.add(`hide`);
+        this.#parentElement.innerHTML = ``;
+        this.#parentElement.insertAdjacentHTML(`afterbegin`, markup);
+        document.querySelector(`.input-bug-name`).value = this.#data.bugName;
+        document.querySelector(`.input-bug-prio`).value = this.#data.bugPriority;
+        document.querySelector(`.input-bug-desc`).value = this.#data.bugDescription;
+        document.querySelector(`.input-bug-tags`).value = this.#data.bugTags;
+        document.querySelector(`.input-bug-finder`).value = this.#data.bugFinder;
+        document.querySelector(`.input-bug-status`).value = this.#data.bugStatus;
+    }
+    renderProjectsTextChange(text) {
+        document.querySelector(`.text-path`).textContent = `Projects / ${text}`;
+        document.querySelector(`.content-heading`).textContent = text;
+    }
+    renderProjectPathChange(activeProject, text) {
+        document.querySelector(`.text-path`).textContent = `${activeProject} / ${text}`;
+        document.querySelector(`.content-heading`).textContent = text;
     }
     _generateMarkup() {
         return ` <ul class="bugs-list bugs-list--user">
@@ -2971,6 +3087,62 @@ class bugView {
     <button class="btn-bug--delete">DELETE</button>
   </ul>`;
     }
+    _selectedBugMarkup() {
+        console.log(this.#data);
+        return `<div class="selected-bug">
+      <h2 class="selected-bug-title">${this.#data.bugName}</h2>
+      <p class="selected-bug-data">${this.#data.bugDescription}</p>
+      <p class="selected-bug-data">Priortiy: ${this.#data.bugPriority}</p>
+      <p class="selected-bug-data">Found By: ${this.#data.bugFinder}</p>
+      <p class="selected-bug-data">Status: ${this.#data.bugStatus}</p>
+      <button class="btn-edit-bug">Edit Bug</button>
+    </div>`;
+    }
+    _generateEditBugMarkup() {
+        console.log(this.#data);
+        return `<div class="bug-edit-form">
+    <h2 class="bug-modal-title">Change any field you like and press update</h2>
+    <p class="secondary-text">
+      (Tags should be seperated with a comma e.g tag1,tag2,tag3)
+    </p>
+    <form class="new-bug-form">
+      <div class="bug-input-field">
+        <label for="input-bug-name" class="bug-modal-label">Bug Name</label>
+        <input class="bug-modal-input input-bug-name" type="text" />
+      </div>
+      <div class="bug-input-field">
+        <label for="input-bug-prio" class="bug-modal-label"
+          >Bug Priority</label
+        >
+        <input class="bug-modal-input input-bug-prio" type="text" />
+      </div>
+      <div class="bug-input-field">
+        <label for="input-bug-desc" class="bug-modal-label"
+          >Bug Description</label
+        >
+        <input class="bug-modal-input input-bug-desc" type="textarea" />
+      </div>
+      <div class="bug-input-field">
+        <label for="input-bug-tags" class="bug-modal-label">Bug Tags</label>
+        <input class="bug-modal-input input-bug-tags" type="text" />
+      </div>
+      <div class="bug-input-field">
+        <label for="input-bug-finder" class="bug-modal-label"
+          >Bug Finder</label
+        >
+        <input class="bug-modal-input input-bug-finder" type="text"/>
+      </div>
+      <div class="bug-input-field">
+        <label for="input-bug-status" class="bug-modal-label"
+          >Bug Status</label
+        >
+        <input class="bug-modal-input input-bug-status" type="text"  />
+      </div>
+    </form>
+    <button class="btn-update-bug">Update</button>
+    
+  </div>`;
+    }
     addHandler(handler) {
         window.addEventListener(`click`, function(e) {
             handler(e);
@@ -2979,7 +3151,7 @@ class bugView {
 }
 exports.default = new bugView();
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5wGMN":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./controller":"1GgH0"}],"5wGMN":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _app = require("@firebase/app");
@@ -4237,8 +4409,8 @@ parcelHelpers.export(exports, "validateCallback", ()=>validateCallback);
 parcelHelpers.export(exports, "validateContextObject", ()=>validateContextObject);
 parcelHelpers.export(exports, "validateIndexedDBOpenable", ()=>validateIndexedDBOpenable);
 parcelHelpers.export(exports, "validateNamespace", ()=>validateNamespace);
-var process = require("process");
 var global = arguments[3];
+var process = require("process");
 /**
  * @license
  * Copyright 2017 Google LLC
