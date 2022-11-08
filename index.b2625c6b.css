@@ -34,12 +34,24 @@ body {
   font-size: 2.2rem;
 }
 
-.main-nav-list {
+.logo-container {
+  align-items: center;
+  gap: 1rem;
+  display: flex;
+}
+
+.logo {
   align-items: center;
   gap: 2.4rem;
   padding: 2.4rem 0;
-  list-style: none;
+  font-size: 2.2rem;
+  font-weight: 600;
   display: flex;
+}
+
+.logo-img {
+  height: 4rem;
+  width: 4rem;
 }
 
 .main-nav-link {
@@ -79,6 +91,8 @@ body {
   border: none;
   border-radius: 50%;
   padding: 1rem;
+  font-size: 1.8rem;
+  font-weight: 600;
 }
 
 .page-content-container {
@@ -86,7 +100,7 @@ body {
   display: flex;
 }
 
-.login-form-container {
+.login-form-container, .help-modal {
   z-index: 999;
   width: 70%;
   height: 70%;
@@ -103,6 +117,26 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   box-shadow: 0 1rem 3rem 1rem #0003;
+}
+
+.help-modal {
+  gap: 8rem;
+  padding: 10rem;
+}
+
+.help-title {
+  font-size: 4.4rem;
+}
+
+.help-text {
+  font-size: 1.8rem;
+}
+
+.btn-close-help {
+  width: 10rem;
+  height: 4rem;
+  font-size: 1.8rem;
+  font-weight: 500;
 }
 
 .login-title {
@@ -197,13 +231,13 @@ body {
   display: flex;
 }
 
-.aside-nav-item {
+.aside-nav-item, .aside-nav-item-proj {
   border-radius: 1rem;
   padding: .4rem;
   transition: all .3s;
 }
 
-.aside-nav-item:hover {
+.aside-nav-item:hover, .aside-nav-item-proj:hover {
   cursor: pointer;
   background-color: #e9e9e9;
 }
@@ -213,11 +247,15 @@ body {
   text-decoration: none;
 }
 
-.add-project-button, .btn-projects-back, .btn-add-bug {
+.add-project-button, .btn-projects-back, .btn-add-bug, .btn-projects-delete {
   width: 18rem;
   height: 3.2rem;
   margin-bottom: 2rem;
   font-size: 1.8rem;
+}
+
+.btn-projects-back, .btn-projects-delete {
+  margin-bottom: 0;
 }
 
 .add-project-container {
@@ -262,6 +300,7 @@ body {
 .bugs-list {
   grid-template-columns: 1fr 2fr 1fr 1fr .5fr;
   align-items: center;
+  margin-bottom: 1.2rem;
   list-style: none;
   transition: all .3s;
   display: grid;
@@ -270,6 +309,35 @@ body {
 .bugs-header-list-item {
   font-size: 1.8rem;
   font-weight: 600;
+}
+
+.main-cta {
+  justify-content: space-between;
+  align-items: center;
+  display: flex;
+}
+
+.search-field {
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  display: flex;
+}
+
+.search-icon {
+  height: 2.4rem;
+  width: 2.4rem;
+  stroke: #333;
+}
+
+.input-search {
+  height: 2.4rem;
+}
+
+.btn-search {
+  height: 3.2rem;
+  width: 10rem;
+  font-size: 1.8rem;
 }
 
 .bugs-list--user {
@@ -310,10 +378,12 @@ body {
 
 .bug-modal-title {
   text-transform: uppercase;
+  text-align: center;
   font-size: 2.4rem;
 }
 
 .secondary-text {
+  text-align: center;
   padding-bottom: 2rem;
   font-size: 1.4rem;
 }
@@ -327,10 +397,14 @@ body {
 
 .bug-modal-input {
   width: 30rem;
-  height: 3rem;
+  height: 3.4rem;
   border: none;
   border-radius: 1rem;
-  padding: 1rem;
+  padding: .8rem;
+  font-family: inherit;
+  font-size: 1.4rem;
+  font-weight: 400;
+  overflow-x: scroll;
 }
 
 .new-bug-form {
@@ -343,17 +417,41 @@ body {
 
 .bug-input-field {
   flex-direction: column;
+  margin: 0 auto;
+  font-family: inherit;
+  font-size: 1.4rem;
   display: flex;
 }
 
 .input-bug-desc, .input-bug-tags {
   height: 10rem;
+  resize: none;
+  justify-content: flex-start;
+  align-items: flex-start;
+  font-family: inherit;
+  font-size: 1.4rem;
+  font-weight: 400;
+  display: flex;
+  overflow-x: scroll;
 }
 
-.btn-cancel-add-bug, .btn-submit-bug {
+.btn-cancel-add-bug, .btn-submit-bug, .btn-update-bug {
   height: 4.8rem;
   width: 10rem;
   font-size: 1.8rem;
+}
+
+.new-bug-btns {
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  gap: 1.6rem;
+  padding-top: 1.2rem;
+  display: flex;
+}
+
+.btn-bug--delete {
+  height: 2.4rem;
 }
 
 .selected-bug {
@@ -386,24 +484,6 @@ body {
   gap: 2rem;
   padding: 1.2rem;
   display: flex;
-}
-
-.tint-blue {
-  color: #228be6;
-}
-
-.tint-red {
-  color: red;
-}
-
-.tint-green {
-  stroke: #51cf66;
-  color: #51cf66;
-}
-
-.hide {
-  opacity: 0;
-  visibility: hidden;
 }
 
 /*# sourceMappingURL=index.b2625c6b.css.map */

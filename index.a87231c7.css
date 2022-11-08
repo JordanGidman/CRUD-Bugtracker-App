@@ -1,0 +1,101 @@
+@media (max-width: 55.62em) {
+  .bug-modal {
+    width: 100vw;
+    height: 100vh;
+    padding: 5px 3rem;
+    overflow-y: scroll;
+  }
+
+  .bug-modal-container {
+    height: 90%;
+    align-self: center;
+    overflow-y: auto;
+  }
+
+  .new-bug-form {
+    flex-direction: column;
+    padding: 1.2rem;
+    display: flex;
+  }
+
+  .section-main {
+    height: 80vh;
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 52.43em) {
+  html {
+    font: 52.2%;
+  }
+
+  .page-content-container {
+    flex-direction: column;
+    display: flex;
+  }
+
+  .main-aside {
+    width: 100%;
+    height: auto;
+  }
+
+  .aside-nav-list {
+    text-align: center;
+    grid-template-columns: repeat(3, 1fr);
+    place-items: center;
+    display: grid;
+  }
+
+  .project-selected-view {
+    display: none;
+  }
+
+  .btn-projects-delete {
+    grid-column: -2 / -1;
+  }
+
+  .add-project-container {
+    width: 100%;
+    grid-column: span 3;
+  }
+
+  .logo {
+    display: none;
+  }
+
+  .header {
+    height: 6rem;
+  }
+}
+
+@media (max-width: 43em) {
+  html {
+    font-size: 50%;
+  }
+
+  .btn-bug--delete {
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 33em) {
+  .input-teamcode {
+    width: 12rem;
+  }
+
+  .content-heading {
+    margin-bottom: 1rem;
+  }
+
+  .btn-projects-delete, .btn-projects-back {
+    width: 10rem;
+  }
+}
+
+@media (max-width: 26.7em) {
+  .input-search {
+    width: 10rem;
+  }
+}
+
+/*# sourceMappingURL=index.a87231c7.css.map */

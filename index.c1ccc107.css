@@ -76,4 +76,35 @@
   box-shadow: inset 0 .3rem .7rem #d6d6e7;
 }
 
+.tint-blue {
+  color: #228be6;
+}
+
+.tint-red {
+  color: red;
+}
+
+.tint-green {
+  stroke: #51cf66;
+  color: #51cf66;
+}
+
+.tint-yellow {
+  color: #f08c00;
+}
+
+.tint-black {
+  color: #333;
+}
+
+.tint-purple {
+  color: #5468ff;
+}
+
+.hide {
+  opacity: 0;
+  visibility: hidden;
+  display: none;
+}
+
 /*# sourceMappingURL=index.c1ccc107.css.map */

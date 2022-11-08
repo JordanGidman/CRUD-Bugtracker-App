@@ -9,8 +9,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script> -->
 
-    <link rel="stylesheet" href="/index.c1ccc107.css">
     <link rel="stylesheet" href="/index.b2625c6b.css">
+    <link rel="stylesheet" href="/index.c1ccc107.css">
+    <link rel="stylesheet" href="/index.a87231c7.css">
     <script src="/index.850bd9e5.js" defer=""></script>
 
     <title>JG Bug Tracker</title>
@@ -19,8 +20,11 @@
     <div class="container">
       <header class="header">
         <nav class="main-nav">
-          <div class="logo"></div>
-          <ul class="main-nav-list">
+          <div class="logo-container">
+            <img src="/logo.b82d6c7c.png" alt="picture of logo" class="logo-img">
+            <div class="logo">JG Bug Tracker</div>
+          </div>
+          <!-- <ul class="main-nav-list">
             <li class="main-nav-item">
               <a class="main-nav-link" href="#">Home</a>
             </li>
@@ -30,10 +34,10 @@
             <li class="main-nav-item">
               <a class="main-nav-link" href="#">Members</a>
             </li>
-          </ul>
+          </ul> -->
         </nav>
 
-        <div class="teamcode-form-container">
+        <div class="teamcode-form-container hide">
           <form class="teamcode-form">
             <label for="input-teamcode" class="teamcode-label">Team Code</label>
             <input class="input-teamcode" type="text">
@@ -43,7 +47,7 @@
             <button class="btn-teamcode highlight-btn teamcode-create">
               Create
             </button>
-            <button class="btn-teamcode-help">?</button>
+            <button class="btn-teamcode-help light-btn">?</button>
           </form>
         </div>
 
@@ -127,8 +131,17 @@
           <h4 class="text-path">Projects / Issues</h4>
           <h2 class="content-heading">Issues</h2>
 
-          <div class="search-field"></div>
-          <button class="btn-add-bug highlight-btn">Add New Bug</button>
+          <div class="main-cta">
+            <button class="btn-add-bug highlight-btn">Add New Bug</button>
+            <div class="search-field">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="search-icon">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path>
+              </svg>
+
+              <input type="text" class="input-search">
+              <button class="btn-search highlight-btn">Search</button>
+            </div>
+          </div>
 
           <div class="bugs-list-header">
             <ul class="bugs-header-sections bugs-list">
@@ -170,38 +183,70 @@
       </div>
 
       <div class="bug-modal hide">
-        <h2 class="bug-modal-title">Please enter the details of your bug</h2>
-        <p class="secondary-text">
-          (Tags should be seperated with a comma e.g tag1,tag2,tag3)
+        <div class="bug-modal-container">
+          <h2 class="bug-modal-title">Please enter the details of your bug</h2>
+          <p class="secondary-text">
+            (Tags should be seperated with a comma e.g tag1,tag2,tag3)
+          </p>
+          <form class="new-bug-form">
+            <div class="bug-input-field">
+              <label for="input-bug-name" class="bug-modal-label">Bug Name</label>
+              <input class="bug-modal-input input-bug-name" type="text">
+            </div>
+            <div class="bug-input-field">
+              <label for="input-bug-prio" class="bug-modal-label">Bug Priority</label>
+              <select class="bug-modal-input input-bug-prio" type="text">
+                <option value=""></option>
+                <option value="HIGH">HIGH</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="LOW">LOW</option>
+              </select>
+            </div>
+            <div class="bug-input-field">
+              <label for="input-bug-desc" class="bug-modal-label">Bug Description</label>
+              <textarea class="bug-modal-input input-bug-desc" rows="1" cols="50" wrap="physical"></textarea>
+            </div>
+            <div class="bug-input-field">
+              <label for="input-bug-tags" class="bug-modal-label">Bug Tags</label>
+              <textarea class="bug-modal-input input-bug-tags" rows="1" cols="50" wrap="physical"></textarea>
+            </div>
+            <div class="bug-input-field">
+              <label for="input-bug-finder" class="bug-modal-label">Bug Finder</label>
+              <input class="bug-modal-input input-bug-finder" type="text">
+            </div>
+            <div class="bug-input-field">
+              <label for="input-bug-status" class="bug-modal-label">Bug Status</label>
+              <select class="bug-modal-input input-bug-status" type="text">
+                <option value=""></option>
+                <option value="Active">Active</option>
+                <option value="WiP">In Progress(WiP)</option>
+                <option value="Solved">Solved</option>
+              </select>
+            </div>
+          </form>
+          <div class="new-bug-btns">
+            <button class="btn-submit-bug light-btn">Add bug</button>
+            <button class="btn-cancel-add-bug light-btn">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="help-modal hide">
+        <h1 class="help-title">TEAMCODE</h1>
+        <!-- <h2 class="help-heading">Team Code</h2> -->
+        <p class="help-text">
+          The teamcode allows for multiple users to work on and share the same
+          projects and bugs. <br><br>Simply enter any word or number or
+          combination of both and click create. This will create a new team with
+          that code. Now any other users can enter that same code and click join
+          and they will be able to create read update and delete bugs and
+          projects for the entire team. If you would like some sample data
+          please enter "hireme" in the teamcode and press join. <br><br>If
+          you refresh the page you will need to enter the teamcode again or
+          navigate to the team tasks section from within a project.
         </p>
-        <form class="new-bug-form">
-          <div class="bug-input-field">
-            <label for="input-bug-name" class="bug-modal-label">Bug Name</label>
-            <input class="bug-modal-input input-bug-name" type="text">
-          </div>
-          <div class="bug-input-field">
-            <label for="input-bug-prio" class="bug-modal-label">Bug Priority</label>
-            <input class="bug-modal-input input-bug-prio" type="text">
-          </div>
-          <div class="bug-input-field">
-            <label for="input-bug-desc" class="bug-modal-label">Bug Description</label>
-            <input class="bug-modal-input input-bug-desc" type="textarea">
-          </div>
-          <div class="bug-input-field">
-            <label for="input-bug-tags" class="bug-modal-label">Bug Tags</label>
-            <input class="bug-modal-input input-bug-tags" type="text">
-          </div>
-          <div class="bug-input-field">
-            <label for="input-bug-finder" class="bug-modal-label">Bug Finder</label>
-            <input class="bug-modal-input input-bug-finder" type="text">
-          </div>
-          <div class="bug-input-field">
-            <label for="input-bug-status" class="bug-modal-label">Bug Status</label>
-            <input class="bug-modal-input input-bug-status" type="text">
-          </div>
-        </form>
-        <button class="btn-submit-bug light-btn">Add bug</button>
-        <button class="btn-cancel-add-bug light-btn">Cancel</button>
+
+        <button class="btn-close-help light-btn">Close</button>
       </div>
     </div>
   </body>
