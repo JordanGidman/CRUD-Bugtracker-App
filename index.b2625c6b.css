@@ -50,8 +50,8 @@ body {
 }
 
 .logo-img {
-  height: 4rem;
-  width: 4rem;
+  height: 6rem;
+  width: 6rem;
 }
 
 .main-nav-link {
@@ -107,11 +107,7 @@ body {
   color: #fff;
   background-image: radial-gradient(100% 100% at 100% 0, #5adaff 0, #5468ff 100%);
   border-radius: 1rem;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
   gap: 1.2rem;
-  display: flex;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -119,9 +115,16 @@ body {
   box-shadow: 0 1rem 3rem 1rem #0003;
 }
 
+.login-form-container {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
 .help-modal {
-  gap: 8rem;
-  padding: 10rem;
+  gap: 1.2rem;
+  padding: 4rem;
 }
 
 .help-title {
@@ -129,12 +132,14 @@ body {
 }
 
 .help-text {
+  margin-bottom: 1.2rem;
   font-size: 1.8rem;
 }
 
 .btn-close-help {
   width: 10rem;
   height: 4rem;
+  align-self: center;
   font-size: 1.8rem;
   font-weight: 500;
 }
@@ -187,6 +192,11 @@ body {
   background-color: #f4f5f7;
   border-right: .2rem solid #3333331a;
   padding: 2rem;
+  overflow-y: scroll;
+}
+
+.main-aside::-webkit-scrollbar {
+  display: none;
 }
 
 .project-selected-view {
@@ -247,7 +257,7 @@ body {
   text-decoration: none;
 }
 
-.add-project-button, .btn-projects-back, .btn-add-bug, .btn-projects-delete {
+.add-project-button, .btn-projects-back, .btn-add-bug, .btn-projects-delete, .btn-edit-bug {
   width: 18rem;
   height: 3.2rem;
   margin-bottom: 2rem;
@@ -265,6 +275,7 @@ body {
   align-items: center;
   gap: 1.2rem;
   margin-top: 1.2rem;
+  margin-bottom: 8rem;
   padding: 1.2rem 0;
   display: flex;
 }

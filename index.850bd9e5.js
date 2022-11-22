@@ -142,396 +142,7 @@
       this[globalName] = mainExports;
     }
   }
-})({"bxIRe":[function(require,module,exports) {
-"use strict";
-var global = arguments[3];
-var HMR_HOST = null;
-var HMR_PORT = null;
-var HMR_SECURE = false;
-var HMR_ENV_HASH = "d6ea1d42532a7575";
-module.bundle.HMR_BUNDLE_ID = "af599da5850bd9e5";
-/* global HMR_HOST, HMR_PORT, HMR_ENV_HASH, HMR_SECURE, chrome, browser, globalThis, __parcel__import__, __parcel__importScripts__, ServiceWorkerGlobalScope */ /*::
-import type {
-  HMRAsset,
-  HMRMessage,
-} from '@parcel/reporter-dev-server/src/HMRServer.js';
-interface ParcelRequire {
-  (string): mixed;
-  cache: {|[string]: ParcelModule|};
-  hotData: mixed;
-  Module: any;
-  parent: ?ParcelRequire;
-  isParcelRequire: true;
-  modules: {|[string]: [Function, {|[string]: string|}]|};
-  HMR_BUNDLE_ID: string;
-  root: ParcelRequire;
-}
-interface ParcelModule {
-  hot: {|
-    data: mixed,
-    accept(cb: (Function) => void): void,
-    dispose(cb: (mixed) => void): void,
-    // accept(deps: Array<string> | string, cb: (Function) => void): void,
-    // decline(): void,
-    _acceptCallbacks: Array<(Function) => void>,
-    _disposeCallbacks: Array<(mixed) => void>,
-  |};
-}
-interface ExtensionContext {
-  runtime: {|
-    reload(): void,
-    getURL(url: string): string;
-    getManifest(): {manifest_version: number, ...};
-  |};
-}
-declare var module: {bundle: ParcelRequire, ...};
-declare var HMR_HOST: string;
-declare var HMR_PORT: string;
-declare var HMR_ENV_HASH: string;
-declare var HMR_SECURE: boolean;
-declare var chrome: ExtensionContext;
-declare var browser: ExtensionContext;
-declare var __parcel__import__: (string) => Promise<void>;
-declare var __parcel__importScripts__: (string) => Promise<void>;
-declare var globalThis: typeof self;
-declare var ServiceWorkerGlobalScope: Object;
-*/ var OVERLAY_ID = "__parcel__error__overlay__";
-var OldModule = module.bundle.Module;
-function Module(moduleName) {
-    OldModule.call(this, moduleName);
-    this.hot = {
-        data: module.bundle.hotData,
-        _acceptCallbacks: [],
-        _disposeCallbacks: [],
-        accept: function(fn) {
-            this._acceptCallbacks.push(fn || function() {});
-        },
-        dispose: function(fn) {
-            this._disposeCallbacks.push(fn);
-        }
-    };
-    module.bundle.hotData = undefined;
-}
-module.bundle.Module = Module;
-var checkedAssets, acceptedAssets, assetsToAccept /*: Array<[ParcelRequire, string]> */ ;
-function getHostname() {
-    return HMR_HOST || (location.protocol.indexOf("http") === 0 ? location.hostname : "localhost");
-}
-function getPort() {
-    return HMR_PORT || location.port;
-} // eslint-disable-next-line no-redeclare
-var parent = module.bundle.parent;
-if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== "undefined") {
-    var hostname = getHostname();
-    var port = getPort();
-    var protocol = HMR_SECURE || location.protocol == "https:" && !/localhost|127.0.0.1|0.0.0.0/.test(hostname) ? "wss" : "ws";
-    var ws = new WebSocket(protocol + "://" + hostname + (port ? ":" + port : "") + "/"); // Web extension context
-    var extCtx = typeof chrome === "undefined" ? typeof browser === "undefined" ? null : browser : chrome; // Safari doesn't support sourceURL in error stacks.
-    // eval may also be disabled via CSP, so do a quick check.
-    var supportsSourceURL = false;
-    try {
-        (0, eval)('throw new Error("test"); //# sourceURL=test.js');
-    } catch (err) {
-        supportsSourceURL = err.stack.includes("test.js");
-    } // $FlowFixMe
-    ws.onmessage = async function(event) {
-        checkedAssets = {} /*: {|[string]: boolean|} */ ;
-        acceptedAssets = {} /*: {|[string]: boolean|} */ ;
-        assetsToAccept = [];
-        var data = JSON.parse(event.data);
-        if (data.type === "update") {
-            // Remove error overlay if there is one
-            if (typeof document !== "undefined") removeErrorOverlay();
-            let assets = data.assets.filter((asset)=>asset.envHash === HMR_ENV_HASH); // Handle HMR Update
-            let handled = assets.every((asset)=>{
-                return asset.type === "css" || asset.type === "js" && hmrAcceptCheck(module.bundle.root, asset.id, asset.depsByBundle);
-            });
-            if (handled) {
-                console.clear(); // Dispatch custom event so other runtimes (e.g React Refresh) are aware.
-                if (typeof window !== "undefined" && typeof CustomEvent !== "undefined") window.dispatchEvent(new CustomEvent("parcelhmraccept"));
-                await hmrApplyUpdates(assets);
-                for(var i = 0; i < assetsToAccept.length; i++){
-                    var id = assetsToAccept[i][1];
-                    if (!acceptedAssets[id]) hmrAcceptRun(assetsToAccept[i][0], id);
-                }
-            } else fullReload();
-        }
-        if (data.type === "error") {
-            // Log parcel errors to console
-            for (let ansiDiagnostic of data.diagnostics.ansi){
-                let stack = ansiDiagnostic.codeframe ? ansiDiagnostic.codeframe : ansiDiagnostic.stack;
-                console.error("\uD83D\uDEA8 [parcel]: " + ansiDiagnostic.message + "\n" + stack + "\n\n" + ansiDiagnostic.hints.join("\n"));
-            }
-            if (typeof document !== "undefined") {
-                // Render the fancy html overlay
-                removeErrorOverlay();
-                var overlay = createErrorOverlay(data.diagnostics.html); // $FlowFixMe
-                document.body.appendChild(overlay);
-            }
-        }
-    };
-    ws.onerror = function(e) {
-        console.error(e.message);
-    };
-    ws.onclose = function() {
-        console.warn("[parcel] \uD83D\uDEA8 Connection to the HMR server was lost");
-    };
-}
-function removeErrorOverlay() {
-    var overlay = document.getElementById(OVERLAY_ID);
-    if (overlay) {
-        overlay.remove();
-        console.log("[parcel] ✨ Error resolved");
-    }
-}
-function createErrorOverlay(diagnostics) {
-    var overlay = document.createElement("div");
-    overlay.id = OVERLAY_ID;
-    let errorHTML = '<div style="background: black; opacity: 0.85; font-size: 16px; color: white; position: fixed; height: 100%; width: 100%; top: 0px; left: 0px; padding: 30px; font-family: Menlo, Consolas, monospace; z-index: 9999;">';
-    for (let diagnostic of diagnostics){
-        let stack = diagnostic.frames.length ? diagnostic.frames.reduce((p, frame)=>{
-            return `${p}
-<a href="/__parcel_launch_editor?file=${encodeURIComponent(frame.location)}" style="text-decoration: underline; color: #888" onclick="fetch(this.href); return false">${frame.location}</a>
-${frame.code}`;
-        }, "") : diagnostic.stack;
-        errorHTML += `
-      <div>
-        <div style="font-size: 18px; font-weight: bold; margin-top: 20px;">
-          🚨 ${diagnostic.message}
-        </div>
-        <pre>${stack}</pre>
-        <div>
-          ${diagnostic.hints.map((hint)=>"<div>\uD83D\uDCA1 " + hint + "</div>").join("")}
-        </div>
-        ${diagnostic.documentation ? `<div>📝 <a style="color: violet" href="${diagnostic.documentation}" target="_blank">Learn more</a></div>` : ""}
-      </div>
-    `;
-    }
-    errorHTML += "</div>";
-    overlay.innerHTML = errorHTML;
-    return overlay;
-}
-function fullReload() {
-    if ("reload" in location) location.reload();
-    else if (extCtx && extCtx.runtime && extCtx.runtime.reload) extCtx.runtime.reload();
-}
-function getParents(bundle, id) /*: Array<[ParcelRequire, string]> */ {
-    var modules = bundle.modules;
-    if (!modules) return [];
-    var parents = [];
-    var k, d, dep;
-    for(k in modules)for(d in modules[k][1]){
-        dep = modules[k][1][d];
-        if (dep === id || Array.isArray(dep) && dep[dep.length - 1] === id) parents.push([
-            bundle,
-            k
-        ]);
-    }
-    if (bundle.parent) parents = parents.concat(getParents(bundle.parent, id));
-    return parents;
-}
-function updateLink(link) {
-    var newLink = link.cloneNode();
-    newLink.onload = function() {
-        if (link.parentNode !== null) // $FlowFixMe
-        link.parentNode.removeChild(link);
-    };
-    newLink.setAttribute("href", link.getAttribute("href").split("?")[0] + "?" + Date.now()); // $FlowFixMe
-    link.parentNode.insertBefore(newLink, link.nextSibling);
-}
-var cssTimeout = null;
-function reloadCSS() {
-    if (cssTimeout) return;
-    cssTimeout = setTimeout(function() {
-        var links = document.querySelectorAll('link[rel="stylesheet"]');
-        for(var i = 0; i < links.length; i++){
-            // $FlowFixMe[incompatible-type]
-            var href = links[i].getAttribute("href");
-            var hostname = getHostname();
-            var servedFromHMRServer = hostname === "localhost" ? new RegExp("^(https?:\\/\\/(0.0.0.0|127.0.0.1)|localhost):" + getPort()).test(href) : href.indexOf(hostname + ":" + getPort());
-            var absolute = /^https?:\/\//i.test(href) && href.indexOf(location.origin) !== 0 && !servedFromHMRServer;
-            if (!absolute) updateLink(links[i]);
-        }
-        cssTimeout = null;
-    }, 50);
-}
-function hmrDownload(asset) {
-    if (asset.type === "js") {
-        if (typeof document !== "undefined") {
-            let script = document.createElement("script");
-            script.src = asset.url + "?t=" + Date.now();
-            if (asset.outputFormat === "esmodule") script.type = "module";
-            return new Promise((resolve, reject)=>{
-                var _document$head;
-                script.onload = ()=>resolve(script);
-                script.onerror = reject;
-                (_document$head = document.head) === null || _document$head === void 0 || _document$head.appendChild(script);
-            });
-        } else if (typeof importScripts === "function") {
-            // Worker scripts
-            if (asset.outputFormat === "esmodule") return import(asset.url + "?t=" + Date.now());
-            else return new Promise((resolve, reject)=>{
-                try {
-                    importScripts(asset.url + "?t=" + Date.now());
-                    resolve();
-                } catch (err) {
-                    reject(err);
-                }
-            });
-        }
-    }
-}
-async function hmrApplyUpdates(assets) {
-    global.parcelHotUpdate = Object.create(null);
-    let scriptsToRemove;
-    try {
-        // If sourceURL comments aren't supported in eval, we need to load
-        // the update from the dev server over HTTP so that stack traces
-        // are correct in errors/logs. This is much slower than eval, so
-        // we only do it if needed (currently just Safari).
-        // https://bugs.webkit.org/show_bug.cgi?id=137297
-        // This path is also taken if a CSP disallows eval.
-        if (!supportsSourceURL) {
-            let promises = assets.map((asset)=>{
-                var _hmrDownload;
-                return (_hmrDownload = hmrDownload(asset)) === null || _hmrDownload === void 0 ? void 0 : _hmrDownload.catch((err)=>{
-                    // Web extension bugfix for Chromium
-                    // https://bugs.chromium.org/p/chromium/issues/detail?id=1255412#c12
-                    if (extCtx && extCtx.runtime && extCtx.runtime.getManifest().manifest_version == 3) {
-                        if (typeof ServiceWorkerGlobalScope != "undefined" && global instanceof ServiceWorkerGlobalScope) {
-                            extCtx.runtime.reload();
-                            return;
-                        }
-                        asset.url = extCtx.runtime.getURL("/__parcel_hmr_proxy__?url=" + encodeURIComponent(asset.url + "?t=" + Date.now()));
-                        return hmrDownload(asset);
-                    }
-                    throw err;
-                });
-            });
-            scriptsToRemove = await Promise.all(promises);
-        }
-        assets.forEach(function(asset) {
-            hmrApply(module.bundle.root, asset);
-        });
-    } finally{
-        delete global.parcelHotUpdate;
-        if (scriptsToRemove) scriptsToRemove.forEach((script)=>{
-            if (script) {
-                var _document$head2;
-                (_document$head2 = document.head) === null || _document$head2 === void 0 || _document$head2.removeChild(script);
-            }
-        });
-    }
-}
-function hmrApply(bundle, asset) {
-    var modules = bundle.modules;
-    if (!modules) return;
-    if (asset.type === "css") reloadCSS();
-    else if (asset.type === "js") {
-        let deps = asset.depsByBundle[bundle.HMR_BUNDLE_ID];
-        if (deps) {
-            if (modules[asset.id]) {
-                // Remove dependencies that are removed and will become orphaned.
-                // This is necessary so that if the asset is added back again, the cache is gone, and we prevent a full page reload.
-                let oldDeps = modules[asset.id][1];
-                for(let dep in oldDeps)if (!deps[dep] || deps[dep] !== oldDeps[dep]) {
-                    let id = oldDeps[dep];
-                    let parents = getParents(module.bundle.root, id);
-                    if (parents.length === 1) hmrDelete(module.bundle.root, id);
-                }
-            }
-            if (supportsSourceURL) // Global eval. We would use `new Function` here but browser
-            // support for source maps is better with eval.
-            (0, eval)(asset.output);
-             // $FlowFixMe
-            let fn = global.parcelHotUpdate[asset.id];
-            modules[asset.id] = [
-                fn,
-                deps
-            ];
-        } else if (bundle.parent) hmrApply(bundle.parent, asset);
-    }
-}
-function hmrDelete(bundle, id) {
-    let modules = bundle.modules;
-    if (!modules) return;
-    if (modules[id]) {
-        // Collect dependencies that will become orphaned when this module is deleted.
-        let deps = modules[id][1];
-        let orphans = [];
-        for(let dep in deps){
-            let parents = getParents(module.bundle.root, deps[dep]);
-            if (parents.length === 1) orphans.push(deps[dep]);
-        } // Delete the module. This must be done before deleting dependencies in case of circular dependencies.
-        delete modules[id];
-        delete bundle.cache[id]; // Now delete the orphans.
-        orphans.forEach((id)=>{
-            hmrDelete(module.bundle.root, id);
-        });
-    } else if (bundle.parent) hmrDelete(bundle.parent, id);
-}
-function hmrAcceptCheck(bundle, id, depsByBundle) {
-    if (hmrAcceptCheckOne(bundle, id, depsByBundle)) return true;
-     // Traverse parents breadth first. All possible ancestries must accept the HMR update, or we'll reload.
-    let parents = getParents(module.bundle.root, id);
-    let accepted = false;
-    while(parents.length > 0){
-        let v = parents.shift();
-        let a = hmrAcceptCheckOne(v[0], v[1], null);
-        if (a) // If this parent accepts, stop traversing upward, but still consider siblings.
-        accepted = true;
-        else {
-            // Otherwise, queue the parents in the next level upward.
-            let p = getParents(module.bundle.root, v[1]);
-            if (p.length === 0) {
-                // If there are no parents, then we've reached an entry without accepting. Reload.
-                accepted = false;
-                break;
-            }
-            parents.push(...p);
-        }
-    }
-    return accepted;
-}
-function hmrAcceptCheckOne(bundle, id, depsByBundle) {
-    var modules = bundle.modules;
-    if (!modules) return;
-    if (depsByBundle && !depsByBundle[bundle.HMR_BUNDLE_ID]) {
-        // If we reached the root bundle without finding where the asset should go,
-        // there's nothing to do. Mark as "accepted" so we don't reload the page.
-        if (!bundle.parent) return true;
-        return hmrAcceptCheck(bundle.parent, id, depsByBundle);
-    }
-    if (checkedAssets[id]) return true;
-    checkedAssets[id] = true;
-    var cached = bundle.cache[id];
-    assetsToAccept.push([
-        bundle,
-        id
-    ]);
-    if (!cached || cached.hot && cached.hot._acceptCallbacks.length) return true;
-}
-function hmrAcceptRun(bundle, id) {
-    var cached = bundle.cache[id];
-    bundle.hotData = {};
-    if (cached && cached.hot) cached.hot.data = bundle.hotData;
-    if (cached && cached.hot && cached.hot._disposeCallbacks.length) cached.hot._disposeCallbacks.forEach(function(cb) {
-        cb(bundle.hotData);
-    });
-    delete bundle.cache[id];
-    bundle(id);
-    cached = bundle.cache[id];
-    if (cached && cached.hot && cached.hot._acceptCallbacks.length) cached.hot._acceptCallbacks.forEach(function(cb) {
-        var assetsToAlsoAccept = cb(function() {
-            return getParents(module.bundle.root, id);
-        });
-        if (assetsToAlsoAccept && assetsToAccept.length) // $FlowFixMe[method-unbinding]
-        assetsToAccept.push.apply(assetsToAccept, assetsToAlsoAccept);
-    });
-    acceptedAssets[id] = true;
-}
-
-},{}],"1GgH0":[function(require,module,exports) {
+})({"1GgH0":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "saveData", ()=>saveData);
@@ -574,7 +185,6 @@ const firebaseConfig = {
 // // const database = firebase.getDatabase
 const app = (0, _app.initializeApp)(firebaseConfig);
 const db = (0, _firestore.getFirestore)(app);
-console.log(db);
 const saveData = async function(data) {
     //need to save account info - projects for the user and bugs for those projects
     try {
@@ -619,7 +229,6 @@ const getAccountData = async function() {
         });
         //Update the state accounts array with the stored data
         _modelJs.state.accounts = users;
-        console.log(_modelJs.state.accounts);
     } catch (err) {
         console.log(err);
     }
@@ -627,7 +236,6 @@ const getAccountData = async function() {
 getAccountData();
 const updateProjects = async function(user) {
     try {
-        console.log(user);
         const accountRef = (0, _firestore.doc)(db, "accounts", user.docId);
         const userProjects = user.projects;
         await (0, _firestore.updateDoc)(accountRef, {
@@ -639,7 +247,6 @@ const updateProjects = async function(user) {
 };
 const updateTeamcode = async function(user, inputTeamcode) {
     try {
-        console.log(user);
         //Pull the user account
         const accountRef = (0, _firestore.doc)(db, "accounts", user.docId);
         await (0, _firestore.updateDoc)(accountRef, {
@@ -652,10 +259,8 @@ const updateTeamcode = async function(user, inputTeamcode) {
 const updateBugs = async function(user) {
     try {
         const accountRef = (0, _firestore.doc)(db, "accounts", user.docId);
-        console.log(user.bugsArr);
         const bugs = [];
         user.bugsArr.forEach((bug)=>bugs.push(bug.bugToJSON()));
-        console.log(bugs);
         await (0, _firestore.updateDoc)(accountRef, {
             bugsArr: bugs
         });
@@ -671,7 +276,6 @@ const convertBugs = function(bugsArray) {
     return newBugs;
 };
 const deleteProject = function(proj) {
-    console.log(proj);
     //delete all bugs from the users bugs arr with a project = to proj
     let newBugsArr = activeUser.bugsArr.filter((bug)=>bug.bugProject !== proj);
     //delete the proj name from activeUser projects
@@ -691,7 +295,6 @@ const controlSignin = function() {
     //capture user data
     let userUsername = document.querySelector(`.input-username`);
     let userPassword = document.querySelector(`.input-password`);
-    console.log(_modelJs.state.accounts);
     //If yes then check password is an exact match
     //If yes set Log in and set active user to the found account
     activeUser = _modelJs.state.accounts.find((acc)=>acc.username === userUsername.value && acc.checkPassword(userPassword.value));
@@ -705,13 +308,11 @@ const controlSignin = function() {
     //Pull saved data and check for account with username === to input
     //render all projects from the active user's projects Arr
     // activeUser.projects.push(`food app`, `Bug Tracker App`, `E-Commerce Site`); //remove line - DEVELOPEMNT
-    console.log(activeUser);
     activeUser.projects.forEach((proj)=>{
         const projId = proj.toLowerCase().replaceAll(` `, `-`);
         (0, _projectViewJsDefault.default).renderProjects(proj, projId);
     });
     (0, _projectViewJsDefault.default).renderNewProjectForm();
-    console.log(activeUser.projects);
     //render the page content and any bugs that are in the bugsArr (TOGGLED OFF FOR DEVELOPEMNT ADD THE HIDE CLASS TO THIS ELEMENT)
     document.querySelector(`.page-content-container`).classList.remove(`hide`);
     //close the login modal
@@ -747,7 +348,6 @@ const controlSignup = async function() {
     const newUser = new _modelJs.User(userUsername.value, userPassword.value, teamcode);
     _modelJs.state.accounts.push(newUser);
     //Update the storage with the new accounts arr
-    console.log(_modelJs.state.accounts);
     saveData(newUser.toJSON());
     // localStorage.setItem("accounts", JSON.stringify(state.accounts));
     await getAccountData();
@@ -768,11 +368,13 @@ const controlAddBugModal = function() {
 };
 const controlAddBug = function() {
     const bugObj = captureUserInput();
-    console.log(bugObj);
     //guard clause
     if (!bugObj) return;
     //add the bug to the activeUsers bugsArr
     activeUser.bugsArr.push(bugObj);
+    _modelJs.state.accounts.forEach((acc)=>{
+        if (acc.username === activeUser.username) acc.bugsArr = activeUser.bugsArr;
+    });
     updateBugs(activeUser);
     //render the markup onto the user bugs list
     (0, _bugViewJsDefault.default).renderBugs(bugObj);
@@ -781,13 +383,14 @@ const controlAddBug = function() {
 };
 const getProjectBugs = function(e) {
     // const clicked = e.closest(`.aside-nav-link`);
-    console.log(e);
     let project;
     typeof e === "string" ? project = e : project = e.classList.contains(`aside-nav-item`) ? e.dataset.tab : e.closest(`.aside-nav-item`).dataset.tab;
     //this is the name we will search for
     //Set active project to be the project name
     if (activeProject !== project) activeProject = project;
-    console.log(activeProject);
+    handleBugRender();
+};
+const handleBugRender = function() {
     //Set the section text and path
     (0, _bugViewJsDefault.default).renderProjectsTextChange(activeProject);
     //remove existing nav
@@ -807,9 +410,6 @@ const getProjectBugs = function(e) {
 };
 const handleProjectNav = function(e) {
     let projLink = e.target.textContent.trimStart().trimEnd();
-    console.log(projLink);
-    console.log(`yeberg`);
-    console.log(activeProject);
     //find which link was used
     //active tasks is default view of all the projects bugs
     if (projLink === `Active Tasks`) {
@@ -818,12 +418,19 @@ const handleProjectNav = function(e) {
         (0, _bugViewJsDefault.default).renderProjectPathChange(activeProject, `Active Tasks`);
     }
     //urgent tasks
-    //filter the activeUser bugs arr for all bugs with priority = high
+    //filter the state accounts bugs arr for all bugs with priority = high of the same project
     if (projLink === `Urgent Tasks`) {
-        const urgentBugs = activeUser.bugsArr.filter((b)=>b.bugPriority === "HIGH");
+        // const urgentBugs = activeUser.bugsArr.filter(
+        //   (b) => b.bugPriority === "HIGH" && b.bugProject === activeProject
+        // );
+        let teamUrgentBugs = [];
+        _modelJs.state.accounts.filter((acc)=>{
+            teamUrgentBugs.push(acc.bugsArr.filter((b)=>b.bugPriority === `HIGH` && b.bugProject === activeProject));
+        });
+        // console.log(teamUrgentBugs.flatMap((bug) => bug));
         document.querySelector(`.bugs-user-container`).innerHTML = ``;
         //then render the found bugs
-        urgentBugs.forEach((bug)=>{
+        teamUrgentBugs.flatMap((bug)=>bug).forEach((bug)=>{
             (0, _bugViewJsDefault.default).renderBugs(bug);
         });
         (0, _bugViewJsDefault.default).renderProjectPathChange(activeProject, `Urgent Tasks`);
@@ -844,11 +451,12 @@ const handleProjectNav = function(e) {
         let teamBugs = [];
         //if right team code find all users with the same one
         const teamMates = _modelJs.state.accounts.filter((acc)=>acc.teamcode === activeUser.teamcode && acc.username !== activeUser.username);
-        console.log(teamMates);
         teamMates.forEach((acc)=>teamBugs.push(acc.bugsArr.filter((bug)=>bug.bugProject === activeProject)));
         //render all their bugs arrs that match the activeProject to screen
         teamBugs = teamBugs.flatMap((bug)=>bug);
-        console.log(teamBugs);
+        let teamBugsSet = new Set(teamBugs.map(JSON.stringify).map(JSON.parse));
+        let uniqueBugs = Array.from(teamBugsSet);
+        // console.log(`unique bugs:`, uniqueBugs);
         teamBugs.forEach((bug)=>{
             (0, _bugViewJsDefault.default).renderBugs(bug);
         });
@@ -856,7 +464,6 @@ const handleProjectNav = function(e) {
     }
 };
 const projectNavBack = function() {
-    console.log(activeUser);
     document.querySelector(`.aside-nav-list`).innerHTML = "";
     document.querySelector(`.bugs-user-container`).innerHTML = "";
     document.querySelector(`.section-main`).classList.add(`hide`);
@@ -872,7 +479,6 @@ const projectNavBack = function() {
     document.querySelector(`.main-cta`).classList.remove(`hide`);
 };
 const openSelectedBug = function(e) {
-    console.log(`worked`);
     if (e.target.classList.contains(`btn-bug--delete`)) return;
     // const temp = e.target
     //   .closest(`.bug-name`)
@@ -881,13 +487,16 @@ const openSelectedBug = function(e) {
     //   .filter((c) => c !== ``)
     //   .join(` `);
     const clicked = e.target.closest(`.bugs-list`);
-    console.log(clicked);
     if (!clicked) return;
     const temp = clicked.dataset.bugname;
-    console.log(temp);
-    activeBug = activeUser.bugsArr.find((bug)=>bug.bugName === temp);
-    console.log(activeBug);
-    (0, _bugViewJsDefault.default).renderSelectedBug(activeUser.bugsArr.find((bug)=>bug.bugName === temp));
+    //loop the state.accounts in each iteration check if the bug name exits and has the same project name
+    _modelJs.state.accounts.forEach((acc)=>{
+        const bugExists = acc.bugsArr.find((bug)=>bug.bugName === temp && acc.teamcode === activeUser.teamcode);
+        if (bugExists) activeBug = bugExists;
+    });
+    //check the user the bug is found in has the same teamcode as active user
+    //if yes set activeBug to be this bug
+    (0, _bugViewJsDefault.default).renderSelectedBug(activeBug);
     //hide add bug button
     document.querySelector(`.btn-add-bug`).classList.add(`hide`);
 };
@@ -895,12 +504,15 @@ const updateEditedBug = function(bug) {
     const bugObj = captureUserInput();
     //Validation
     if (!bugObj) return;
+    //Pull the account the bug is from
+    const bugUser = _modelJs.state.accounts.find((acc)=>acc.bugsArr.find((bug)=>bug === activeBug));
     //delete the current bug
-    const newBugsArr = activeUser.bugsArr.filter((bug)=>bug !== activeBug);
+    const newBugsArr = bugUser.bugsArr.filter((bug)=>bug !== activeBug);
     newBugsArr.push(bugObj);
-    activeUser.bugsArr = newBugsArr;
+    bugUser.bugsArr = newBugsArr;
     //Save to database
-    updateBugs(activeUser);
+    updateBugs(bugUser);
+    projectNavBack();
 };
 const captureUserInput = function() {
     //Capture input data
@@ -915,7 +527,6 @@ const captureUserInput = function() {
         alert(`Please fill in all required fields. Only tags is optional`);
         return;
     }
-    console.log(activeUser);
     if (activeUser.bugsArr.find((bug)=>bug.bugName === bugname.value)) {
         alert(`A bug with that name already exists. Please check someone has not already begun tracking this issue.`);
         return;
@@ -936,14 +547,12 @@ const captureUserInput = function() {
 };
 const getUserConfirmation = function() {
     let answer = prompt(`Are you sure you want to delete the project and ALL bugs with it? Enter Y for yes and N for no`);
-    console.log(answer);
     return answer === `Y` ? true : false;
 };
 const searchBugs = function() {
     //filter for bugs where name or tags contain what has been typed
     const inputSearch = document.querySelector(`.input-search`).value;
     const matchedBugs = activeUser.bugsArr.filter((bug)=>bug.bugName.includes(inputSearch) || bug.bugTags.includes(inputSearch));
-    console.log(matchedBugs);
     //clear bugView
     document.querySelector(`.bugs-user-container`).innerHTML = "";
     //render those bugs to bugview
@@ -980,22 +589,23 @@ const checkBtnClicked = function(e) {
     //Join existing teamcode
     if (e.target.classList.contains(`teamcode-join`)) _modelJs.joinTeam(e);
     // bug clicked by user
-    if (e.target.classList.contains(`bugs-list`) || e.target.closest(`.bugs-list`)) {
-        console.log(e.target);
-        openSelectedBug(e);
-    }
+    if (e.target.classList.contains(`bugs-list`) || e.target.closest(`.bugs-list`)) openSelectedBug(e);
     //Edit bug button
     if (e.target.classList.contains(`btn-edit-bug`)) //render the bug-modal form
     (0, _bugViewJsDefault.default).renderEditBug();
+    //Submit Edits btn
     if (e.target.classList.contains(`btn-update-bug`)) updateEditedBug(activeBug);
     //Delete project button
     if (e.target.classList.contains(`btn-projects-delete`)) //As this will permenantly delete the users project and bugs it is important that we confirm this decision
     getUserConfirmation() && deleteProject(activeProject);
+    //Help btn
     if (e.target.classList.contains(`btn-teamcode-help`)) {
         e.preventDefault();
         document.querySelector(`.help-modal`).classList.remove(`hide`);
     }
+    //Close Help Modal
     if (e.target.classList.contains(`btn-close-help`)) document.querySelector(`.help-modal`).classList.add(`hide`);
+    //Search btn
     if (e.target.classList.contains(`btn-search`)) searchBugs();
 };
 const init = function() {
@@ -1102,7 +712,6 @@ const deleteBug = function(e) {
     //remove it from user bugsArr
     const currBug = el.childNodes[3].textContent.replaceAll(`\n`, ``).split(` `).filter((arrEl)=>arrEl !== ` ` && arrEl != ``).join(` `);
     const newBugsArr = (0, _controller.activeUser).bugsArr.filter((bug)=>bug.bugName !== currBug);
-    console.log(newBugsArr);
     (0, _controller.activeUser).bugsArr = newBugsArr;
     (0, _controllerJs.updateBugs)((0, _controller.activeUser));
     // activeUser.bugsArr = activeUser.bugsArr.filter(bug => bug.bugName !== )
@@ -1141,10 +750,17 @@ const createTeamCode = function(e) {
         return;
     }
     //check if teamcode is in use
+    if (state.accounts.find((acc)=>acc.teamCode === inputTeamcode)) {
+        alert(`Teamcode already exists!`);
+        return;
+    }
     //set the current users teamcode to be === to the data
     (0, _controller.activeUser).teamcode = inputTeamcode;
     //update the user in storage
     (0, _controller.updateTeamcode)((0, _controller.activeUser), inputTeamcode);
+    //Display success
+    document.querySelector(`.teamcode-label`).textContent = `Success`;
+    document.querySelector(`input-teamcode`).value = ``;
 };
 const joinTeam = function(e) {
     e.preventDefault();
@@ -1162,21 +778,17 @@ const joinTeam = function(e) {
     (0, _controller.updateTeamcode)((0, _controller.activeUser), inputTeamcode);
     //make an array of users that have the same teamcode using find
     const teamMembers = state.accounts.filter((acc)=>acc.teamcode === inputTeamcode);
-    console.log(teamMembers);
     //get all unique projects
     let teamProjects = [];
     teamMembers.forEach((acc)=>teamProjects.push(acc.projects));
     teamProjects = new Set(teamProjects.flatMap((proj)=>proj));
-    console.log(teamProjects);
     //get all unique bugs
     let teamBugs = [];
     teamMembers.forEach((acc)=>teamBugs.push(acc.bugsArr));
     teamBugs = new Set(teamBugs.flatMap((bug)=>bug));
-    console.log(teamBugs);
     //update the active user projects and bugs with any non duplicates
     (0, _controller.activeUser).projects = Array.from(teamProjects);
-    (0, _controller.activeUser).bugsArr = Array.from(teamBugs);
-    console.log((0, _controller.activeUser));
+    // activeUser.bugsArr = Array.from(teamBugs);
     //render the new projects
     document.querySelector(`.aside-nav-list`).innerHTML = ``;
     (0, _controller.activeUser).projects.forEach((proj)=>{
@@ -1184,6 +796,9 @@ const joinTeam = function(e) {
         (0, _projectViewDefault.default).renderProjects(proj, projId);
     });
     (0, _projectViewDefault.default).renderNewProjectForm();
+    //Display success
+    document.querySelector(`.teamcode-label`).textContent = `Success`;
+    document.querySelector(`.input-teamcode`).value = ``;
 };
 const leaveTeam = function(e) {
     e.preventDefault();
@@ -3125,7 +2740,6 @@ class bugView {
         //Change the text and button
         //render selected bug view
         this.#parentElement.insertAdjacentHTML(`afterbegin`, markup);
-        console.log(`worked fella`);
     }
     renderEditBug(data) {
         // this.#data = data;
@@ -3170,18 +2784,16 @@ class bugView {
   </ul>`;
     }
     _selectedBugMarkup() {
-        console.log(this.#data);
         return `<div class="selected-bug">
       <h2 class="selected-bug-title">${this.#data.bugName}</h2>
       <p class="selected-bug-data">${this.#data.bugDescription}</p>
       <p class="selected-bug-data">Priortiy: ${this.#data.bugPriority}</p>
       <p class="selected-bug-data">Found By: ${this.#data.bugFinder}</p>
       <p class="selected-bug-data">Status: ${this.#data.bugStatus}</p>
-      <button class="btn-edit-bug">Edit Bug</button>
+      <button class="btn-edit-bug light-btn">Edit Bug</button>
     </div>`;
     }
     _generateEditBugMarkup() {
-        console.log(this.#data);
         return `<div class="bug-edit-form">
     <h2 class="bug-modal-title">Change any field you like and press update</h2>
     <p class="secondary-text">
@@ -26974,6 +26586,6 @@ var FetchXmlHttpFactory = esm.FetchXmlHttpFactory = ed;
 var WebChannel = esm.WebChannel = Ub;
 var XhrIo = esm.XhrIo = W;
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["bxIRe","1GgH0"], "1GgH0", "parcelRequire22be")
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["1GgH0"], "1GgH0", "parcelRequire22be")
 
 //# sourceMappingURL=index.850bd9e5.js.map
